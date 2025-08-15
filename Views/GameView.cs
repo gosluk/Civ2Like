@@ -1,0 +1,328 @@
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Media;
+using Avalonia.Media.Immutable;
+using Avalonia.Media.TextFormatting;
+using Avalonia.Threading;
+using System.Collections.Immutable;
+using System.Globalization;
+using System.Threading.Tasks.Dataflow;
+
+namespace Civ2Like
+{
+    public sealed class GameView : Control
+    {
+        private readonly Game _game;
+        private readonly Typeface _typeface = new("Segoe UI", weight: FontWeight.Bold);
+        private readonly double _size = GameConfig.HexSize;
+        private readonly double _pad  = 100;
+
+        private Hex? _hoverScreenHex;
+        private Hex? _hoverWorldHex;
+        private readonly ITargetBlock<string> _hoverNotifier;
+        private IReadOnlyList<Hex>? _currentPath;
+        private Point _origin;
+
+        private int _viewColOffset = 0;
+        private int _viewRowOffset = 0;
+
+        public GameView()
+        {
+            _game = new Game(GameConfig.Width, GameConfig.Height, GameConfig.Seed);
+            Focusable = true;
+
+            PointerMoved  += OnPointerMoved;
+            PointerPressed += OnPointerPressed;
+            KeyDown       += OnKeyDown;
+
+            _origin = ComputeOrigin();
+
+            _hoverNotifier = new ActionBlock<string>(async msg =>
+                {
+                    await Task.Delay(300);
+                    await Dispatcher.UIThread.InvokeAsync(InvalidateVisual);
+                },
+                new ExecutionDataflowBlockOptions
+                {
+                    BoundedCapacity = 1, MaxDegreeOfParallelism = 1,
+                });
+        }
+
+        private static int Mod(int a, int m) { int r = a % m; return r < 0 ? r + m : r; }
+
+        private Point ComputeOrigin()
+        {
+            double minX = double.MaxValue, minY = double.MaxValue;
+            for (int r = 0; r < GameConfig.Height; r++)
+            for (int c = 0; c < GameConfig.Width; c++)
+            {
+                var screenHex = _game.Map.FromColRow(c, r);
+                var (x, y) = HexLayout.HexToPixel(screenHex, _size);
+                if (x < minX) minX = x;
+                if (y < minY) minY = y;
+            }
+            return new Point(_pad - minX, _pad - minY);
+        }
+
+        private Point ToPixelScreen(Hex screenHex)
+        {
+            var (x, y) = HexLayout.HexToPixel(_game.Map.Canonical(screenHex), _size);
+            return new Point(x + _origin.X, y + _origin.Y);
+        }
+
+        private (int col, int row) ScreenColRowFromAxial(Hex screenHex)
+        {
+            int row = screenHex.R;
+            int col = screenHex.Q - Map.QStart(row);
+            return (col, row);
+        }
+
+        private Hex WorldHexAtScreen(int screenCol, int screenRow)
+            => _game.Map.FromColRow(screenCol + _viewColOffset, screenRow + _viewRowOffset);
+
+        private Hex ScreenHexFromWorld(Hex world)
+        {
+            int row = Mod(world.R - _viewRowOffset, GameConfig.Height);
+            int colWorld = world.Q - Map.QStart(world.R);
+            int col = Mod(colWorld - _viewColOffset, GameConfig.Width);
+            return _game.Map.FromColRow(col, row);
+        }
+
+        private Hex PixelToWorldHex(Point p)
+        {
+            var approxScreen = HexLayout.PixelToHex(p.X - _origin.X, p.Y - _origin.Y, _size);
+            var (sc, sr) = ScreenColRowFromAxial(approxScreen);
+            return WorldHexAtScreen(Mod(sc, GameConfig.Width), Mod(sr, GameConfig.Height));
+        }
+
+        private void OnPointerMoved(object? sender, PointerEventArgs e)
+        {
+            var p = e.GetPosition(this);
+            var world = PixelToWorldHex(p);
+            var screen = ScreenHexFromWorld(world);
+            _hoverWorldHex = world;
+            _hoverScreenHex = screen;
+
+            _hoverNotifier.Post(string.Empty);
+        }
+
+        private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
+        {
+            var p = e.GetPosition(this);
+            var world = PixelToWorldHex(p);
+
+            if (e.GetCurrentPoint(this).Properties.IsRightButtonPressed)
+            {
+                var findNextUnitToMove = _game.Units.FirstOrDefault(u => u.Owner == _game.ActivePlayer && u.MovesLeft > 0);
+
+                if (findNextUnitToMove is null)
+                {
+                    _game.EndTurn();
+                }
+                else
+                {
+                    _game.SelectedUnit = findNextUnitToMove;
+                    InvalidateVisual();
+                }
+            }
+            else
+            {
+                if (_game.TrySelectUnitAt(world))
+                {
+                    _currentPath = null;
+                }
+                else if (_game.SelectedUnit != null)
+                {
+                    _currentPath = _game.FindPath(_game.SelectedUnit.Pos, world);
+                    _game.FollowPath(_currentPath);
+                }
+            }
+
+            InvalidateVisual();
+            Focus();
+        }
+
+        private void OnKeyDown(object? sender, KeyEventArgs e)
+        {
+            switch (e.Key)
+            {
+                case Key.Left:  _viewColOffset = Mod(_viewColOffset - 1, GameConfig.Width);  break;
+                case Key.Right: _viewColOffset = Mod(_viewColOffset + 1, GameConfig.Width);  break;
+                case Key.Up:    _viewRowOffset = Mod(_viewRowOffset - 1, GameConfig.Height); break;
+                case Key.Down:  _viewRowOffset = Mod(_viewRowOffset + 1, GameConfig.Height); break;
+
+                case Key.S:
+                    File.WriteAllText("events.json", _game.Events.ToJson());
+                    break;
+
+                case Key.L:
+                    if (File.Exists("events.json"))
+                    {
+                        var json = File.ReadAllText("events.json");
+                        _game.Events.LoadFromJson(json);
+                        _game.Events.Replay(_game, _game.Events.Log);
+                    }
+                    break;
+
+                case Key.E: _game.EndTurn(); break;
+                case Key.C: _game.TryFoundCity(); break;
+                case Key.Space:
+                case Key.M:
+                    if (_currentPath != null) _game.FollowPath(_currentPath);
+                    break;
+            }
+
+            InvalidateVisual();
+        }
+
+        private void DrawBoard(DrawingContext ctx)
+        {
+            for (int r = 0; r < GameConfig.Height; r++)
+            {
+                for (int c = 0; c < GameConfig.Width; c++)
+                {
+                    var screenHex = _game.Map.FromColRow(c, r);
+                    var worldHex = WorldHexAtScreen(c, r);
+                    var t = _game.Map[worldHex].Terrain;
+                    DrawHexAt(ctx, screenHex, TerrainBrush(t), outline: Brushes.Black, thickness: 0);
+                }
+            }
+        }
+
+        private void DrawHoveredHex(DrawingContext ctx, Hex sh)
+        {
+            DrawHexAt(ctx, sh, fill: null, outline: Brushes.White, thickness: 2, dashed: true);
+        }
+
+        private readonly static Pen PathPenNormal = new Pen(Brushes.White, 2);
+        private readonly static Pen PathPenDashed = new Pen(Brushes.White, 2, dashStyle: new ImmutableDashStyle([1, 2], 0));
+
+        private void DrawCurrentPath(DrawingContext ctx)
+        {
+            if (_currentPath is { Count: > 1 })
+            {
+                for (int i = 0; i < _currentPath.Count - 1; i++)
+                {
+                    var hexA = ScreenHexFromWorld(_currentPath[i]);
+                    var hexB = ScreenHexFromWorld(_currentPath[i + 1]);
+                    var a = ToPixelScreen(hexA);
+                    var b = ToPixelScreen(hexB);
+                    ctx.DrawLine(hexA.Distance(hexB) > 2 ? PathPenDashed : PathPenNormal, a, b);
+                }
+            }
+        }
+
+        private void DrawCities(DrawingContext ctx)
+        {
+            foreach (var city in _game.Cities)
+            {
+                var screenHex = ScreenHexFromWorld(city.Pos);
+                var center = ToPixelScreen(screenHex);
+                var rect = new Rect(center.X - 10, center.Y - 10, 20, 20);
+                ctx.DrawRectangle(Brushes.White, new Pen(Brushes.Black, 2), rect);
+
+                string cityName = $"{city.Name} [{city.Production}]";
+                using var nameLayout = new TextLayout(cityName, _typeface, 12, Brushes.White);
+                nameLayout.Draw(ctx, new Point(center.X - nameLayout.Width / 2, center.Y - 20));
+            }
+        }
+
+        private void DrawUnits(DrawingContext ctx)
+        {
+            foreach (var unit in _game.Units)
+            {
+                var screenHex = ScreenHexFromWorld(unit.Pos);
+                var center = ToPixelScreen(screenHex);
+                var geo = new EllipseGeometry(new Rect(center.X - 16, center.Y - 16, 32, 32));
+                
+                ctx.DrawGeometry(Brushes.White, new Pen(Brushes.Black, 1), geo);
+                ctx.DrawText(new FormattedText(unit.Owner.Id.ToString("N").Substring(0, 3), CultureInfo.CurrentCulture, FlowDirection.LeftToRight, _typeface, 12, Brushes.Black), new Point(center.X - 8, center.Y - 8));
+
+                if (unit == _game.SelectedUnit)
+                {
+                    DrawHoveredHex(ctx, unit.Pos);
+                }
+            }
+        }
+
+        private void DrawInfoText(DrawingContext ctx)
+        {
+            var hud = $"Turn {_game.Turn}  Player: {_game.ActivePlayer.Id:N}  MP: {_game.SelectedUnit?.MovesLeft ?? 0}  ViewOffset: ({_viewColOffset},{_viewRowOffset})  Log: {_game.Events.Log.Count}";
+
+            var formattedText = new FormattedText(hud, CultureInfo.CurrentCulture, FlowDirection.LeftToRight, _typeface, 14, Brushes.White);
+            ctx.DrawText(formattedText, new Point(50, 50));
+        }
+
+        public override void Render(DrawingContext ctx)
+        {
+            base.Render(ctx);
+
+            DrawBoard(ctx);
+
+            if (_hoverScreenHex is Hex sh && _hoverWorldHex is Hex wh)
+            {
+                DrawHoveredHex(ctx, sh);
+            }
+
+            DrawCurrentPath(ctx);
+
+            DrawCities(ctx);
+
+            DrawUnits(ctx);
+
+            DrawInfoText(ctx);
+        }
+
+        private readonly static ImmutableDictionary<Terrain, IBrush> TerrainBrushes = 
+            new Dictionary<Terrain, IBrush>
+            {
+                { Terrain.Ocean,      new SolidColorBrush(Color.FromArgb(255, 50,  90, 180)) },
+                { Terrain.Coast,      new SolidColorBrush(Color.FromArgb(255, 80, 130, 210)) },
+                { Terrain.Grassland,  new SolidColorBrush(Color.FromArgb(255, 80, 160,  80)) },
+                { Terrain.Plains,     new SolidColorBrush(Color.FromArgb(255,170, 170,  90)) },
+                { Terrain.Forest,     new SolidColorBrush(Color.FromArgb(255, 40, 120,  40)) },
+                { Terrain.Hills,      new SolidColorBrush(Color.FromArgb(255,130, 110,  80)) },
+                { Terrain.Mountains,  new SolidColorBrush(Color.FromArgb(255,110, 100, 110)) },
+                { Terrain.Desert,     new SolidColorBrush(Color.FromArgb(255,220, 200, 120)) },
+                { Terrain.Tundra,     new SolidColorBrush(Color.FromArgb(255,200, 220, 240)) }
+            }.ToImmutableDictionary();
+
+        private static IBrush TerrainBrush(Terrain t) => TerrainBrushes[t];
+
+        private void DrawHexAt(DrawingContext ctx, Hex screenHex, IBrush? fill, IBrush? outline, double thickness = 1, bool dashed = false)
+        {
+            const int pointSize = 6;
+            var (cx, cy) = HexLayout.HexToPixel(_game.Map.Canonical(screenHex), _size);
+            cx += _origin.X;
+            cy += _origin.Y;
+
+            Span<Point> pts = stackalloc Point[pointSize];
+            for (int i = 0; i < pointSize; i++)
+            {
+                var (ox, oy) = HexLayout.CornerOffset(i, _size);
+                pts[i] = new Point(cx + ox, cy + oy);
+            }
+
+            var geo = new StreamGeometry();
+            using (var gc = geo.Open())
+            {
+                gc.BeginFigure(pts[0], isFilled: true);
+                for (int i = 1; i < pointSize; i++)
+                {
+                    gc.LineTo(pts[i]);
+                }
+                gc.EndFigure(true);
+            }
+
+            Pen? pen = outline is not null ? new Pen(outline, thickness) : null;
+
+            if (dashed && pen is not null)
+            {
+                pen.DashStyle = new DashStyle([1, 2], 0);
+            }
+
+            ctx.DrawGeometry(fill, pen, geo);
+        }
+    }
+}

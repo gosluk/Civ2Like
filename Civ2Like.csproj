@@ -6,6 +6,24 @@
 		<OutputType>WinExe</OutputType>
 		<StartupObject>Civ2Like.Program</StartupObject>
 	</PropertyGroup>
+	
+	<ItemGroup>
+	  <None Remove="Resources\Terrain\Plains.png" />
+	  <None Remove="Resources\Terrain\Savanna.png" />
+	</ItemGroup>
+	
+	<ItemGroup>
+	  <Resource Include="Resources\Terrain\Plains.png" />
+	  <EmbeddedResource Include="Resources\Terrain\Savanna.png" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<!-- Include the whole Resources tree -->
+		<AvaloniaResource Include="Resources\**" />
+		<!-- or just the one file -->
+		<!-- <AvaloniaResource Include="Resources\Terrain\Plains.png" /> -->
+	</ItemGroup>
+	
 	<ItemGroup>
 		<PackageReference Include="Avalonia" Version="11.0.6" />
 		<PackageReference Include="Avalonia.Desktop" Version="11.0.6" />

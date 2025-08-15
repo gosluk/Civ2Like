@@ -2,9 +2,12 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using Avalonia.Media.Immutable;
 using Avalonia.Media.TextFormatting;
+using Avalonia.Platform;
 using Avalonia.Threading;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Threading.Tasks.Dataflow;
@@ -32,9 +35,9 @@ namespace Civ2Like
             _game = new Game(GameConfig.Width, GameConfig.Height, GameConfig.Seed);
             Focusable = true;
 
-            PointerMoved  += OnPointerMoved;
+            PointerMoved += OnPointerMoved;
             PointerPressed += OnPointerPressed;
-            KeyDown       += OnKeyDown;
+            KeyDown += OnKeyDown;
 
             _origin = ComputeOrigin();
 
@@ -47,7 +50,69 @@ namespace Civ2Like
                 {
                     BoundedCapacity = 1, MaxDegreeOfParallelism = 1,
                 });
+
+            LoadTerrain();
         }
+
+        private void LoadTerrain()
+        {
+            Dictionary<Terrain, TerrainData> data = new();
+
+            void AddBrush(Terrain t, IBrush brush)
+            {
+                data[t] = new TerrainData
+                {
+                    Brush = brush,
+                    Image = null
+                };
+            }
+
+            void AddImage(Terrain t, IBrush brush, string path)
+            {
+                var stream = AssetLoader.Open(new Uri($"avares://Civ2Like/Resources/Terrain/{path}"));
+                var bmp = new Bitmap(stream);
+                data[t] = new TerrainData
+                {
+                    Brush = new ImageBrush(bmp)
+                    {
+                        Stretch = Stretch.UniformToFill,
+                        AlignmentX = AlignmentX.Center,
+                        AlignmentY = AlignmentY.Center,
+                        TileMode = TileMode.Tile,
+                        DestinationRect = new RelativeRect(new Rect(0, 0, 1.01, 1.0), RelativeUnit.Relative),
+                        SourceRect = new RelativeRect(new Rect(0, 0, bmp.Size.Width, bmp.Size.Height), RelativeUnit.Absolute),
+                    },
+                    Image = bmp
+                };
+            }
+
+            //AddImage(Terrain.Grassland, new SolidColorBrush(Color.FromArgb(255, 80, 160, 80)), "Savanna.png");
+            //AddImage(Terrain.Plains, new SolidColorBrush(Color.FromArgb(255, 170, 170, 90)), "Plains.png");
+
+            AddBrush(Terrain.Grassland, new SolidColorBrush(Color.FromArgb(255, 80, 160, 80)));
+            AddBrush(Terrain.Plains, new SolidColorBrush(Color.FromArgb(255, 170, 170, 90)));
+
+            AddBrush(Terrain.Ocean, new SolidColorBrush(Color.FromArgb(255, 50, 90, 180)));
+            AddBrush(Terrain.Coast, new SolidColorBrush(Color.FromArgb(255, 80, 130, 210)));
+            AddBrush(Terrain.Forest, new SolidColorBrush(Color.FromArgb(255, 40, 120, 40)));
+            AddBrush(Terrain.Hills, new SolidColorBrush(Color.FromArgb(255, 130, 110, 80)));
+            AddBrush(Terrain.Mountains, new SolidColorBrush(Color.FromArgb(255, 110, 100, 110)));
+            AddBrush(Terrain.Desert, new SolidColorBrush(Color.FromArgb(255, 220, 200, 120)));
+            AddBrush(Terrain.Tundra, new SolidColorBrush(Color.FromArgb(255, 200, 220, 240)));
+
+            TerrainBrushes = data.ToImmutableDictionary();
+        }
+
+        private sealed class TerrainData
+        {
+            public IBrush Brush { get; init; }
+
+            public IImage? Image { get; init; }
+        }
+
+        private static ImmutableDictionary<Terrain, TerrainData> TerrainBrushes;
+
+        private static IBrush TerrainBrush(Terrain t) => TerrainBrushes[t].Brush;
 
         private static int Mod(int a, int m) { int r = a % m; return r < 0 ? r + m : r; }
 
@@ -272,23 +337,9 @@ namespace Civ2Like
             DrawUnits(ctx);
 
             DrawInfoText(ctx);
+
+            DrawHexAt(ctx, new Hex(5, 0), TerrainBrush(Terrain.Plains), outline: Brushes.Black, thickness: 1);
         }
-
-        private readonly static ImmutableDictionary<Terrain, IBrush> TerrainBrushes = 
-            new Dictionary<Terrain, IBrush>
-            {
-                { Terrain.Ocean,      new SolidColorBrush(Color.FromArgb(255, 50,  90, 180)) },
-                { Terrain.Coast,      new SolidColorBrush(Color.FromArgb(255, 80, 130, 210)) },
-                { Terrain.Grassland,  new SolidColorBrush(Color.FromArgb(255, 80, 160,  80)) },
-                { Terrain.Plains,     new SolidColorBrush(Color.FromArgb(255,170, 170,  90)) },
-                { Terrain.Forest,     new SolidColorBrush(Color.FromArgb(255, 40, 120,  40)) },
-                { Terrain.Hills,      new SolidColorBrush(Color.FromArgb(255,130, 110,  80)) },
-                { Terrain.Mountains,  new SolidColorBrush(Color.FromArgb(255,110, 100, 110)) },
-                { Terrain.Desert,     new SolidColorBrush(Color.FromArgb(255,220, 200, 120)) },
-                { Terrain.Tundra,     new SolidColorBrush(Color.FromArgb(255,200, 220, 240)) }
-            }.ToImmutableDictionary();
-
-        private static IBrush TerrainBrush(Terrain t) => TerrainBrushes[t];
 
         private void DrawHexAt(DrawingContext ctx, Hex screenHex, IBrush? fill, IBrush? outline, double thickness = 1, bool dashed = false)
         {

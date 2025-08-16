@@ -1,14 +1,12 @@
+using Civ2Like.Core.Units;
 using Civ2Like.Events;
 using Civ2Like.Events.Items;
 using Civ2Like.Hexagon;
-using Civ2Like.View.Core.Interfaces;
 
 namespace Civ2Like.Core;
 
-public sealed class City : IIdObject, IEquatable<City>
+public sealed class City : UuidObject, IEquatable<City>
 {
-    public Guid Id { get; } = Guid.NewGuid();
-
     public Player Player { get; }
     
     public string Name { get; }
@@ -48,8 +46,4 @@ public sealed class City : IIdObject, IEquatable<City>
     }
 
     public bool Equals(City? other) => Id.Equals(other?.Id);
-
-    public override int GetHashCode() => Id.GetHashCode();
-
-    public override bool Equals(object? obj) => obj is Unit other && Equals(other);
 }

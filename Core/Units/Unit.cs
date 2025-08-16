@@ -1,12 +1,9 @@
 using Civ2Like.Hexagon;
-using Civ2Like.View.Core.Interfaces;
 
-namespace Civ2Like.Core;
+namespace Civ2Like.Core.Units;
 
-public sealed class Unit : IIdObject, IEquatable<Unit>
+public sealed class Unit : UuidObject, IEquatable<Unit>
 {
-    public Guid Id { get; } = Guid.NewGuid();
-
     public string Name { get; set; } = "Unit";
 
     public Player Player { get; }
@@ -34,8 +31,4 @@ public sealed class Unit : IIdObject, IEquatable<Unit>
     public Unit(Player owner, Hex pos, MovementPreset preset) : this(owner, pos, MovementRules.FromPreset(preset)) { }
 
     public bool Equals(Unit? other) => Id.Equals(other?.Id);
-
-    public override int GetHashCode() => Id.GetHashCode();
-
-    public override bool Equals(object? obj) => obj is Unit other && Equals(other);
 }

@@ -1,5 +1,6 @@
 ﻿using Avalonia.Media;
 using Civ2Like.Core;
+using Civ2Like.Core.Units;
 using Civ2Like.Events;
 using Civ2Like.Hexagon;
 

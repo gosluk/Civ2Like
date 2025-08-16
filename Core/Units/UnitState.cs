@@ -1,4 +1,4 @@
-﻿namespace Civ2Like.Core;
+﻿namespace Civ2Like.Core.Units;
 
 public enum UnitState
 {

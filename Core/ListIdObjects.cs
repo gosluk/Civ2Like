@@ -1,10 +1,10 @@
-﻿using Civ2Like.View.Core.Interfaces;
+﻿using Civ2Like.Core;
 using System.Collections;
 
 namespace Civ2Like.View.Core;
 
 public sealed class ListIdObjects<T> : IList<T>
-    where T : IIdObject
+    where T : UuidObject
 {
     // Internal backing list
     private readonly List<T> _items = new();

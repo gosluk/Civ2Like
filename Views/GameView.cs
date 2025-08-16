@@ -9,6 +9,7 @@ using Avalonia.Platform;
 using Avalonia.Threading;
 using Civ2Like.Config;
 using Civ2Like.Core;
+using Civ2Like.Core.Units;
 using Civ2Like.Events.Items;
 using Civ2Like.Hexagon;
 using Civ2Like.View.Views.Events;

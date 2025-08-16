@@ -1,5 +1,6 @@
 using Avalonia.Media;
 using Civ2Like.Core.NameGeneration;
+using Civ2Like.Core.Units;
 using Civ2Like.Events;
 using Civ2Like.Events.Items;
 using Civ2Like.Hexagon;

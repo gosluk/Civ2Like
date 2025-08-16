@@ -1,4 +1,4 @@
-﻿namespace Civ2Like.Core.Interfaces;
+﻿namespace Civ2Like.View.Core.Interfaces;
 
 public interface IIdObject
 {

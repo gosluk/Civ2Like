@@ -1,14 +1,21 @@
-using Civ2Like.Core.Interfaces;
+using Civ2Like.View.Core.Interfaces;
 
-namespace Civ2Like
+namespace Civ2Like.View
 {
     public sealed class Unit : IIdObject
     {
         public Guid Id { get; internal set; }
+
+        public string Name { get; set; } = "Unit";
+
         public Player Owner { get; }
+
         public Hex Pos { get; set; }
+
         public int MoveAllowance { get; } = 2;
+
         public int MovesLeft { get; set; }
+
         public MovementRules Rules { get; }
 
         public Unit(Player owner, Hex pos, MovementRules? rules = null)
@@ -18,6 +25,7 @@ namespace Civ2Like
             Rules = rules ?? MovementRules.LandOnly();
             MovesLeft = MoveAllowance;
         }
+
         public Unit(Player owner, Hex pos, MovementPreset preset) : this(owner, pos, MovementRules.FromPreset(preset)) { }
     }
 }

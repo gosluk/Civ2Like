@@ -1,6 +1,6 @@
-using Civ2Like.Core.Interfaces;
+using Civ2Like.View.Core.Interfaces;
 
-namespace Civ2Like
+namespace Civ2Like.View
 {
     public sealed class City : IIdObject
     {

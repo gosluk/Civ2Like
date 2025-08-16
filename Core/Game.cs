@@ -1,10 +1,13 @@
-using Civ2Like.Core;
+using Avalonia.Media;
+using Civ2Like.View.Core;
 using DynamicData;
 using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+using System.Reflection;
 
-namespace Civ2Like
+namespace Civ2Like.View
 {
     public sealed class Game
     {
@@ -32,9 +35,6 @@ namespace Civ2Like
             Map  = new Map(width, height);
             Events = processor ?? new EventProcessor();
 
-            Players.Add(new Player(Guid.NewGuid()));
-            Players.Add(new Player(Guid.NewGuid()));
-
             //GenerateWorld();
             MapGeneration.ImproveGame.GenerateWorld(Map, _rng.Next() + 400, MapGeneration.WorldFlavor.Islands);
 
@@ -45,13 +45,40 @@ namespace Civ2Like
             left  = FindNearestLandAlongRow(left, +1);
             right = FindNearestLandAlongRow(right, -1);
 
-            var u0 = new Unit(Players[0], left,  MovementPreset.Land) { Id = Guid.NewGuid() };
-            var u1 = new Unit(Players[1], right, MovementPreset.Land) { Id = Guid.NewGuid() };
-            Units.Add(u0);
-            Units.Add(u1);
-            SelectedUnit = u0;
+            RandomizePlayer("Reds");
+            RandomizePlayer("Whites");
+
+            Players.ForEach(RandomizeStart);
 
             Events.Process(this, new GameStartedEvent { Width = width, Height = height, Seed = seed });
+        }
+
+        private void RandomizePlayer(string name)
+        {
+            var brushes = typeof(Avalonia.Media.Colors).
+                GetProperties(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy).
+                ToArray();
+            Avalonia.Media.Color Get() => (Avalonia.Media.Color)brushes[_rng.Next(brushes.Length)].GetValue(null)!;
+
+            Players.Add(new Player(Guid.NewGuid())
+            {
+                Name = name,
+                ColorA = Get(),
+                ColorB = Get(),
+            });
+        }
+
+        private void RandomizeStart(Player player)
+        {
+            Terrain[] notAllowed = [Terrain.Ocean, Terrain.Coast, Terrain.Mountains, Terrain.Desert];
+            var start = Map.AllHexes().Where(h => !notAllowed.Contains(Map[h].Terrain)).OrderBy(_ => _rng.Next()).FirstOrDefault();
+            if (start == default)
+            {
+                throw new NotImplementedException("Can not find start location for player " + player.Name);
+            }
+
+            var unit = new Unit(player, start, MovementPreset.Land) { Id = Guid.NewGuid() };
+            Units.Add(unit);
         }
 
         private Hex FindNearestLandAlongRow(Hex start, int dir)
@@ -206,7 +233,11 @@ namespace Civ2Like
             h = Map.Canonical(h);
             foreach (var u in Units)
             {
-                if (u.Pos == h && u.Owner == ActivePlayer) { SelectedUnit = u; return true; }
+                if (u.Pos == h && u.Owner == ActivePlayer && u.MovesLeft > 0)
+                {
+                    SelectedUnit = u;
+                    return true;
+                }
             }
             return false;
         }

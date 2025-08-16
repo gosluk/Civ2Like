@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Civ2Like.Core;
+namespace Civ2Like.View.Core;
 
 internal static class MapGeneration
 {

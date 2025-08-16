@@ -1,6 +1,6 @@
 using System;
 
-namespace Civ2Like
+namespace Civ2Like.View
 {
     public sealed class GameStartedEvent : IGameEvent
     {

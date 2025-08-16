@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Civ2Like
+namespace Civ2Like.View
 {
     [JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
     [JsonDerivedType(typeof(GameStartedEvent), "GameStarted")]

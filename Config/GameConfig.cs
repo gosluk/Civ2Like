@@ -1,4 +1,4 @@
-namespace Civ2Like
+namespace Civ2Like.View
 {
     public static class GameConfig
     {

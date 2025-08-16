@@ -1,6 +1,6 @@
-﻿using Civ2Like.Core.Interfaces;
+﻿using Civ2Like.View.Core.Interfaces;
 
-namespace Civ2Like.Core;
+namespace Civ2Like.View.Core;
 
 public sealed class ListIdObjects<T> : List<T>
     where T : IIdObject

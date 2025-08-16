@@ -2,7 +2,7 @@ using DynamicData;
 using System.Collections.Generic;
 using System.Text.Json;
 
-namespace Civ2Like
+namespace Civ2Like.View
 {
     public sealed class EventProcessor
     {

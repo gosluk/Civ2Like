@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Immutable;
-
-namespace Civ2Like
+namespace Civ2Like.View
 {
     public readonly struct Hex : IEquatable<Hex>
     {
@@ -34,5 +31,7 @@ namespace Civ2Like
 
         public static bool operator ==(Hex h0, Hex h1) => h0.Equals(h1);
         public static bool operator !=(Hex h0, Hex h1) => !h0.Equals(h1);
+
+        public override string ToString() => $"Hex(Q={Q}, R={R}, S={S})";
     }
 }

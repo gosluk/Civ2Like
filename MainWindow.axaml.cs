@@ -1,13 +1,12 @@
 using Avalonia.Controls;
 
-namespace Civ2Like
+namespace Civ2Like;
+
+public partial class MainWindow : Window
 {
-    public partial class MainWindow : Window
+    public MainWindow()
     {
-        public MainWindow()
-        {
-            InitializeComponent();
-            GameView.Focus();
-        }
+        InitializeComponent();
+        GameView.Focus();
     }
 }

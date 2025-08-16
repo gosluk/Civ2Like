@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Civ2Like
+namespace Civ2Like.View
 {
     public enum MovementPreset { Land, Naval, Flying }
 

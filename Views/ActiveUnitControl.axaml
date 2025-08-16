@@ -1,0 +1,42 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
+             x:Class="Civ2Like.View.ActiveUnitControl">
+	<Grid>
+		<StackPanel Margin="10">
+			<Grid Margin="0,0,0,20">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="Auto" />
+					<ColumnDefinition Width="Auto" />
+					<ColumnDefinition Width="*" />
+				</Grid.ColumnDefinitions>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+				</Grid.RowDefinitions>
+
+				<TextBlock Text="Unit:" FontSize="14" FontWeight="Bold" Grid.Column="0"/>
+				<TextBlock Text="{Binding UnitId}" FontSize="14" Grid.Column="1"/>
+
+				<TextBlock Text="Player:" Grid.Column="0" Grid.Row="1"/>
+				<TextBlock Text="{Binding PlayerId}" FontSize="14" Grid.Column="1" Grid.Row="1"/>
+
+				<TextBlock Text="Positon:" Grid.Column="0" Grid.Row="2"/>
+				<TextBlock Text="{Binding Pos}" FontSize="14" Grid.Column="1" Grid.Row="2"/>
+
+				<TextBlock Text="Moves:" Grid.Column="0" Grid.Row="3"/>
+				<TextBlock Text="{Binding MovesLeft}" FontSize="14" Grid.Column="1" Grid.Row="3"/>
+
+				<TextBlock Text="Icon:" Grid.Column="0" Grid.Row="4"/>
+				<Image Source="{Binding Icon}" Stretch="None" Grid.Column="1" Grid.Row="4"/>
+			</Grid>
+			<Button Content="Fortify" Width="120" Height="30"/>
+			<Button Content="Disband" Width="120" Height="30"/>
+		</StackPanel>
+	</Grid>
+</UserControl>

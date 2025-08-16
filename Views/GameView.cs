@@ -274,13 +274,12 @@ public sealed class GameView : Control
             case Key.C:
                 _game.TryFoundCity();
                 break;
-            case Key.N:
-                SelectUnit(_game.FindNextUnitToMove());
-                break;
             case Key.Space:
                 _game.EndTurn();
-                _currentPath = null;
-                SelectUnit(null);
+                SelectUnit(_game.FindNextUnitToMove());
+                break;
+            case Key.N:
+                SelectUnit(_game.FindNextUnitToMove());
                 break;
             case Key.M:
                 if (_currentPath is not null && _game.SelectedUnit is not null)

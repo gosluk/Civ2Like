@@ -44,6 +44,13 @@ internal class ActiveUnitControlModel
         set => SetProperty(ref _playerId, value);
     }
 
+    private string? _playerName;
+    public string? PlayerName
+    {
+        get => _playerName;
+        set => SetProperty(ref _playerName, value);
+    }
+
     private Hex? _pos;
     public Hex? Pos
     {
@@ -83,6 +90,7 @@ internal class ActiveUnitControlModel
     {
         UnitId = message.UnitId;
         PlayerId = message.Player?.Id ?? Guid.Empty;
+        PlayerName = message.Player?.Name ?? string.Empty;
         Pos = message.Pos;
         MovesLeft = message.MovesLeft;
         Icon = message.Icon;

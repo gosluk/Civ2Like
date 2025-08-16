@@ -2,31 +2,30 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
 
-namespace Civ2Like.Views;
-
+namespace Civ2Like.Views; // <-- match your namespace
 public partial class PlayerFlag : UserControl
 {
-    public static readonly DirectProperty<PlayerFlag, IImmutableSolidColorBrush> PrimaryBrushProperty =
-        AvaloniaProperty.RegisterDirect<PlayerFlag, IImmutableSolidColorBrush>(
+    public static readonly DirectProperty<PlayerFlag, IBrush?> PrimaryBrushProperty =
+        AvaloniaProperty.RegisterDirect<PlayerFlag, IBrush?>(
             nameof(PrimaryBrush),
             o => o.PrimaryBrush,
             (o, v) => o.PrimaryBrush = v);
 
-    public static readonly DirectProperty<PlayerFlag, IImmutableSolidColorBrush> SecondaryBrushProperty =
-        AvaloniaProperty.RegisterDirect<PlayerFlag, IImmutableSolidColorBrush>(
+    public static readonly DirectProperty<PlayerFlag, IBrush?> SecondaryBrushProperty =
+        AvaloniaProperty.RegisterDirect<PlayerFlag, IBrush?>(
             nameof(SecondaryBrush),
             o => o.SecondaryBrush,
             (o, v) => o.SecondaryBrush = v);
 
-    private IImmutableSolidColorBrush _primaryBrush = Brushes.White;
-    public IImmutableSolidColorBrush PrimaryBrush
+    private IBrush? _primaryBrush = Brushes.DodgerBlue;
+    public IBrush? PrimaryBrush
     {
         get => _primaryBrush;
         set => SetAndRaise(PrimaryBrushProperty, ref _primaryBrush, value);
     }
 
-    private IImmutableSolidColorBrush _secondaryBrush = Brushes.Red;
-    public IImmutableSolidColorBrush SecondaryBrush
+    private IBrush? _secondaryBrush = Brushes.White;
+    public IBrush? SecondaryBrush
     {
         get => _secondaryBrush;
         set => SetAndRaise(SecondaryBrushProperty, ref _secondaryBrush, value);

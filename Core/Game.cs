@@ -1,6 +1,7 @@
 using Avalonia.Media;
 using Civ2Like.Core.NameGeneration;
 using Civ2Like.Events;
+using Civ2Like.Events.Items;
 using Civ2Like.Hexagon;
 using Civ2Like.View;
 using Civ2Like.View.Core;
@@ -87,7 +88,6 @@ public sealed class Game
 
         var unit = new Unit(player, start, MovementPreset.Land)
         {
-            Id = Guid.NewGuid(),
             Name = UnitNameGenerator.Next(),
         };
         Units.Add(unit);

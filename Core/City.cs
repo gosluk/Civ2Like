@@ -1,4 +1,5 @@
 using Civ2Like.Events;
+using Civ2Like.Events.Items;
 using Civ2Like.Hexagon;
 using Civ2Like.View.Core.Interfaces;
 
@@ -6,8 +7,8 @@ namespace Civ2Like.Core;
 
 public sealed class City : IIdObject
 {
-    public Guid Id { get; internal set; }
-    
+    public Guid Id { get; } = Guid.NewGuid();
+
     public Player Player { get; }
     
     public string Name { get; }

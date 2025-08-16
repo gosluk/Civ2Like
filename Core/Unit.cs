@@ -7,7 +7,7 @@ namespace Civ2Like.Core;
 
 public sealed class Unit : IIdObject, IEquatable<Unit>
 {
-    public Guid Id { get; internal set; }
+    public Guid Id { get; } = Guid.NewGuid();
 
     public string Name { get; set; } = "Unit";
 

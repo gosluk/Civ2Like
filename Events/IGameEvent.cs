@@ -1,4 +1,5 @@
 using Civ2Like.Core;
+using Civ2Like.Events.Items;
 using System.Text.Json.Serialization;
 
 namespace Civ2Like.Events;

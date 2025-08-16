@@ -5,7 +5,7 @@ namespace Civ2Like.Core;
 
 public sealed class Player : IIdObject, IEquatable<Player>
 {
-    public Guid Id { get; }
+    public Guid Id { get; } = Guid.NewGuid();
 
     public Player(Guid id) => Id = id;
 

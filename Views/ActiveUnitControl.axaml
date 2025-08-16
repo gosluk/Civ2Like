@@ -3,7 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 			 xmlns:local="using:Civ2Like.View"
-			 xmlns:controls="clr-namespace=Civ2Like.Views"
+			 xmlns:controls="using:Civ2Like.Views"
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
              x:Class="Civ2Like.View.ActiveUnitControl">
 	<Grid>
@@ -36,7 +36,9 @@
 
 				<TextBlock Text="Icon:" Grid.Column="0" Grid.Row="4"/>
 				<Image Source="{Binding Icon}" Stretch="None" Grid.Column="1" Grid.Row="4"/>
-				
+				<controls:PlayerFlag PrimaryBrush="{Binding ColorA}" SecondaryBrush="{Binding ColorB}"
+									 MaxHeight="64" MaxWidth="64"
+									 Grid.Column="1" Grid.Row="4" />
 			</Grid>
 			<Button Content="Fortify" Width="120" Height="30"/>
 			<Button Content="Disband" Width="120" Height="30"/>

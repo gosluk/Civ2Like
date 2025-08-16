@@ -5,7 +5,7 @@
 			 xmlns:local="clr-namespace:Civ2Like.Views"
              mc:Ignorable="d" d:DesignWidth="100" d:DesignHeight="100"
              x:Class="Civ2Like.Views.PlayerFlag">
-	<Border CornerRadius="8" BorderBrush="Black" BorderThickness="1.5">
+	<Border CornerRadius="4" BorderBrush="Black" BorderThickness="1.5">
 		<Grid>
 			<Grid.RowDefinitions>
 				<RowDefinition Height="*" />

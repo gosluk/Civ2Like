@@ -10,7 +10,7 @@ public sealed class Unit : IIdObject
 
     public string Name { get; set; } = "Unit";
 
-    public Player Owner { get; }
+    public Player Player { get; }
 
     public Hex Pos { get; set; }
 
@@ -22,7 +22,7 @@ public sealed class Unit : IIdObject
 
     public Unit(Player owner, Hex pos, MovementRules? rules = null)
     {
-        Owner = owner;
+        Player = owner;
         Pos = pos;
         Rules = rules ?? MovementRules.LandOnly();
         MovesLeft = MoveAllowance;

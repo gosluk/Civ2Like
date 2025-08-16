@@ -218,13 +218,13 @@ public sealed class Game
 
         foreach (var u in Units)
         {
-            if (u.Owner == ActivePlayer)
+            if (u.Player == ActivePlayer)
             {
                 u.MovesLeft = u.MoveAllowance;
             }
         }
 
-        SelectedUnit = Units.First(u => u.Owner == ActivePlayer);
+        SelectedUnit = Units.First(u => u.Player == ActivePlayer);
         Events.Process(this, new TurnEndedEvent { NewActiveIndex = ActiveIndex, NewTurn = Turn });
     }
 
@@ -233,7 +233,7 @@ public sealed class Game
         h = Map.Canonical(h);
         foreach (var u in Units)
         {
-            if (u.Pos == h && u.Owner == ActivePlayer && u.MovesLeft > 0)
+            if (u.Pos == h && u.Player == ActivePlayer && u.MovesLeft > 0)
             {
                 SelectedUnit = u;
                 return true;

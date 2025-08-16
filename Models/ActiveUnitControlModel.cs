@@ -65,13 +65,30 @@ internal class ActiveUnitControlModel
         set => SetProperty(ref _icon, value);
     }
 
+    private SolidColorBrush? _colorA;
+    public SolidColorBrush? ColorA
+    {
+        get => _colorA;
+        set => SetProperty(ref _colorA, value);
+    }
+
+    private SolidColorBrush? _colorB;
+    public SolidColorBrush? ColorB
+    {
+        get => _colorB;
+        set => SetProperty(ref _colorB, value);
+    }
+
     public void Receive(UnitSelectionChangedEvent message)
     {
         UnitId = message.UnitId;
-        PlayerId = message.PlayerId;
+        PlayerId = message.Player!.Id;
         Pos = message.Pos;
         MovesLeft = message.MovesLeft;
         Icon = message.Icon;
+
+        ColorA = new SolidColorBrush(message.Player.ColorA);
+        ColorB = new SolidColorBrush(message.Player.ColorB);
     }
 
     public void Dispose()

@@ -11,10 +11,10 @@ public sealed class UnitSelectionChangedEvent
         IsSelected = false;
     }
 
-    public UnitSelectionChangedEvent(Unit unit, IImage icon)
+    public UnitSelectionChangedEvent(Unit unit, Player player, IImage icon)
     {
         UnitId = unit.Id;
-        PlayerId = unit.Owner.Id;
+        Player = player;
         Pos = unit.Pos;
         MovesLeft = unit.MovesLeft;
         Icon = icon;
@@ -23,7 +23,7 @@ public sealed class UnitSelectionChangedEvent
 
     public Guid? UnitId { get; }
 
-    public Guid? PlayerId { get; }
+    public Player? Player { get; }
 
     public Hex? Pos { get; }
 

@@ -203,7 +203,7 @@ public sealed class GameView : Control
                 if (_game.TrySelectUnitAt(world))
                 {
                     _currentPath = null;
-                    WeakReferenceMessenger.Default.Send(new UnitSelectionChangedEvent(_game.SelectedUnit!, _unitIcon));
+                    WeakReferenceMessenger.Default.Send(new UnitSelectionChangedEvent(_game.SelectedUnit!, _game.SelectedUnit!.Player, _unitIcon));
                 }
                 else
                 {
@@ -355,7 +355,7 @@ public sealed class GameView : Control
             var screenHex = ScreenHexFromWorld(unit.Pos);
             var center = ToPixelScreen(screenHex);
 
-            DrawFlag(ctx, center, unit.Owner);
+            DrawFlag(ctx, center, unit.Player);
             ctx.DrawImage(_unitIcon, new Rect(center.X - _unitIcon.Size.Width / 2, center.Y - _unitIcon.Size.Height / 2, _unitIcon.Size.Width, _unitIcon.Size.Height));
 
             if (unit == _game.SelectedUnit)

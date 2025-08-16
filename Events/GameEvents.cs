@@ -102,13 +102,13 @@ public sealed class TurnEndedEvent : IGameEvent
 
         foreach (var u in game.Units)
         {
-            if (u.Owner == game.ActivePlayer)
+            if (u.Player == game.ActivePlayer)
             {
                 u.MovesLeft = u.MoveAllowance;
             }
         }
 
-        game.SelectedUnit = game.Units.First(u => u.Owner == game.ActivePlayer);
+        game.SelectedUnit = game.Units.First(u => u.Player == game.ActivePlayer);
 
         //game.Events.Process(game, new TurnEndedEvent { NewActiveIndex = NewActiveIndex, NewTurn = NewTurn });
     }

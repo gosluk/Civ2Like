@@ -141,7 +141,10 @@ internal class UnitCreatedEvent : IGameEvent
         var pos = game.Cities[CityId].Pos;
         var player = game.Cities[CityId].Player;
 
-        game.Units.Add(new Unit(player, pos, MovementPreset.Land));
+        game.Units.Add(new Unit(player, pos, MovementPreset.Land)
+        {
+            Name = game.UnitNameGenerator.Next(),
+        });
     }
 }
 

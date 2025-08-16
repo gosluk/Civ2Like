@@ -14,6 +14,7 @@ public sealed class UnitSelectionChangedEvent
     public UnitSelectionChangedEvent(Unit unit, Player player, IImage icon)
     {
         UnitId = unit.Id;
+        UnitName = unit.Name;
         Player = player;
         Pos = unit.Pos;
         MovesLeft = unit.MovesLeft;
@@ -22,6 +23,8 @@ public sealed class UnitSelectionChangedEvent
     }
 
     public Guid? UnitId { get; }
+
+    public string? UnitName { get; }
 
     public Player? Player { get; }
 

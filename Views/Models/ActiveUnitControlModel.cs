@@ -37,6 +37,13 @@ internal class ActiveUnitControlModel
         set => SetProperty(ref _unitId, value);
     }
 
+    private string? _unitName;
+    public string? UnitName
+    {
+        get => _unitName;
+        set => SetProperty(ref _unitName, value);
+    }   
+
     private Guid? _playerId;
     public Guid? PlayerId
     {
@@ -89,6 +96,7 @@ internal class ActiveUnitControlModel
     public void Receive(UnitSelectionChangedEvent message)
     {
         UnitId = message.UnitId;
+        UnitName = message.UnitName;
         PlayerId = message.Player?.Id ?? Guid.Empty;
         PlayerName = message.Player?.Name ?? string.Empty;
         Pos = message.Pos;

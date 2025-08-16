@@ -12,7 +12,6 @@ using Civ2Like.Hexagon;
 using Civ2Like.View.Views.Events;
 using CommunityToolkit.Mvvm.Messaging;
 using System.Collections.Immutable;
-using System.Drawing.Printing;
 using System.Threading.Tasks.Dataflow;
 
 namespace Civ2Like.View;
@@ -356,8 +355,14 @@ public sealed class GameView : Control
             DrawFlag(ctx, center, city.Player);
 
             string cityName = $"{city.Name} [{city.Production}, {city.Growth}]";
-            using var nameLayout = new TextLayout(cityName, _typeface, 12, Brushes.White);
-            nameLayout.Draw(ctx, new Point(center.X - nameLayout.Width / 2, center.Y + _cityIcon.Size.Height / 2));
+            using var nameLayout0 = new TextLayout(cityName, _typeface, 12, Brushes.White, TextAlignment.Center);
+            using var nameLayout1 = new TextLayout(cityName, _typeface, 12, Brushes.Black, TextAlignment.Center);
+
+            nameLayout1.Draw(ctx, new Point(center.X - nameLayout0.Width / 2 + 1, center.Y + _cityIcon.Size.Height / 2 + 1));
+            nameLayout1.Draw(ctx, new Point(center.X - nameLayout0.Width / 2 + 1, center.Y + _cityIcon.Size.Height / 2 - 1));
+            nameLayout1.Draw(ctx, new Point(center.X - nameLayout0.Width / 2 - 1, center.Y + _cityIcon.Size.Height / 2 - 1));
+            nameLayout1.Draw(ctx, new Point(center.X - nameLayout0.Width / 2 - 1, center.Y + _cityIcon.Size.Height / 2 + 1));
+            nameLayout0.Draw(ctx, new Point(center.X - nameLayout0.Width / 2, center.Y + _cityIcon.Size.Height / 2));
         }
     }
 

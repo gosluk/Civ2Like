@@ -24,12 +24,17 @@ public sealed class Game
 
     public ListIdObjects<City>   Cities  { get; } = new();
 
-    private CityNameGenerator _cityNameGenerator = new();
+    
+    public CityNameGenerator CityNameGenerator { get; } = new();
+
+    public UnitNameGenerator UnitNameGenerator { get; } = new();
 
     public int Turn        { get; internal set; } = 1;
+    
     public int ActiveIndex { get; internal set; } = 0;
 
     public Player ActivePlayer => Players[ActiveIndex];
+
     public Unit?  SelectedUnit { get; internal set; }
 
     public Game(int width, int height, int seed, EventProcessor? processor = null)
@@ -80,7 +85,11 @@ public sealed class Game
             throw new NotImplementedException("Can not find start location for player " + player.Name);
         }
 
-        var unit = new Unit(player, start, MovementPreset.Land) { Id = Guid.NewGuid() };
+        var unit = new Unit(player, start, MovementPreset.Land)
+        {
+            Id = Guid.NewGuid(),
+            Name = UnitNameGenerator.Next(),
+        };
         Units.Add(unit);
     }
 
@@ -231,7 +240,7 @@ public sealed class Game
         }
 
         var id = Guid.NewGuid();
-        var name = _cityNameGenerator.Next();
+        var name = CityNameGenerator.Next();
         terrain.Owner = ActivePlayer;
         Events.Process(this, new CityFoundedEvent { PlayerId = ActivePlayer.Id, CityId = id, Name = name, Q = pos.Q, R = pos.R });
 

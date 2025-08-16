@@ -1,3 +1,4 @@
+using Civ2Like.Core.NameGeneration;
 using Civ2Like.Hexagon;
 using Civ2Like.View;
 using Civ2Like.View.Core.Interfaces;

@@ -9,11 +9,11 @@
 		<WrapPanel DockPanel.Dock="Top">
 			<Button Content="Game" />
 		</WrapPanel>
-		<StackPanel DockPanel.Dock="Bottom">
+		<StackPanel DockPanel.Dock="Right" Width="300">
 			<local:ActiveUnitControl x:Name="ActiveUnitControl"/>
 		</StackPanel>
-		<ScrollViewer HorizontalScrollBarVisibility="Visible"
-					VerticalScrollBarVisibility="Visible"
+		<ScrollViewer HorizontalScrollBarVisibility="Auto"
+					VerticalScrollBarVisibility="Auto"
 					  AllowAutoHide="False">
 			<local:GameView x:Name="GameView" Focusable="True" />
 		</ScrollViewer>

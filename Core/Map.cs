@@ -22,6 +22,10 @@ public sealed class Map
         }
     }
 
+    public IEnumerable<Tile> Tiles => _tiles.Values;
+
+    public IEnumerable<KeyValuePair<Hex, Tile>> MapData => _tiles;
+
     public static int QStart(int r) => -(int)Math.Floor(r / 2.0);
 
     private static int Mod(int a, int m)

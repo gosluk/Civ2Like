@@ -263,8 +263,8 @@ public sealed class GameView : Control
         {
             case Key.Left:  _viewColOffset = Mod(_viewColOffset - 1, GameConfig.Width);  break;
             case Key.Right: _viewColOffset = Mod(_viewColOffset + 1, GameConfig.Width);  break;
-            case Key.Up:    _viewRowOffset = Mod(_viewRowOffset - 1, GameConfig.Height); break;
-            case Key.Down:  _viewRowOffset = Mod(_viewRowOffset + 1, GameConfig.Height); break;
+            case Key.Up:    _viewRowOffset = Mod(_viewRowOffset - 2, GameConfig.Height); break;
+            case Key.Down:  _viewRowOffset = Mod(_viewRowOffset + 2, GameConfig.Height); break;
 
             case Key.S:
                 File.WriteAllText("events.json", _game.Events.ToJson());
@@ -355,7 +355,7 @@ public sealed class GameView : Control
             ctx.DrawImage(_cityIcon, new Rect(center.X - _cityIcon.Size.Width / 2, center.Y - _cityIcon.Size.Height / 2, _cityIcon.Size.Width, _cityIcon.Size.Height));
             DrawFlag(ctx, center, city.Player);
 
-            string cityName = $"{city.Name} [{city.Production}]";
+            string cityName = $"{city.Name} [{city.Production}, {city.Growth}]";
             using var nameLayout = new TextLayout(cityName, _typeface, 12, Brushes.White);
             nameLayout.Draw(ctx, new Point(center.X - nameLayout.Width / 2, center.Y + _cityIcon.Size.Height / 2));
         }
@@ -392,11 +392,27 @@ public sealed class GameView : Control
         }
     }
 
+    private void DrawBorders(DrawingContext ctx)
+    {
+        foreach (var player in _game.Players)
+        {
+            IBrush fill = new SolidColorBrush(player.ColorA, opacity: 0.4);
+            IBrush outline = new SolidColorBrush(player.ColorB, opacity: 0.7);
+            foreach (var tile in _game.Map.MapData.Where(i => i.Value.Owner == player))
+            {
+                var screenHex = ScreenHexFromWorld(tile.Key);
+                DrawHexAt(ctx, screenHex, fill: fill, outline: outline, thickness: 6, dashed: true, dashes: [0.5]);
+            }
+        }
+    }
+
     public override void Render(DrawingContext ctx)
     {
         base.Render(ctx);
 
         DrawBoard(ctx);
+
+        DrawBorders(ctx);
 
         if (_hoverScreenHex is Hex sh && _hoverWorldHex is Hex wh)
         {
@@ -412,7 +428,14 @@ public sealed class GameView : Control
         DrawHexAt(ctx, new Hex(5, 0), TerrainBrush(Terrain.Plains), outline: Brushes.Black, thickness: 1);
     }
 
-    private void DrawHexAt(DrawingContext ctx, Hex screenHex, IBrush? fill, IBrush? outline, double thickness = 1, bool dashed = false)
+    private void DrawHexAt(
+        DrawingContext ctx,
+        Hex screenHex,
+        IBrush? fill,
+        IBrush? outline,
+        double thickness = 1,
+        bool dashed = false,
+        IEnumerable<double>? dashes = null)
     {
         const int pointSize = 6;
         var (cx, cy) = HexLayout.HexToPixel(_game.Map.Canonical(screenHex), _sizeX, _sizeY);
@@ -441,7 +464,7 @@ public sealed class GameView : Control
 
         if (dashed && pen is not null)
         {
-            pen.DashStyle = new DashStyle([1, 2], 0);
+            pen.DashStyle = new DashStyle(dashes ?? [1, 2], 0);
         }
 
         ctx.DrawGeometry(fill, pen, geo);

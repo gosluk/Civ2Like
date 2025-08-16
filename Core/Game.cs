@@ -200,16 +200,51 @@ public sealed class Game
 
     public bool TryFoundCity()
     {
-        if (SelectedUnit is null) return false;
-        if (Cities.Any(c => c.Pos == SelectedUnit.Pos))
+        if (SelectedUnit is null)
+        {
+            return false;
+        }
+
+        return TryFoundCity(SelectedUnit.Pos);
+    }
+
+    public bool TryFoundCity(Hex pos)
+    {
+        // Other cities must be at least 3 hexes away
+        if (Cities.Any(c => c.Pos.Distance(pos) < 3))
+        {
+            return false;
+        }
+
+        var terrain = Map[pos];
+
+        // Must be on land
+        if (terrain.Terrain == Terrain.Ocean || terrain.Terrain == Terrain.Coast)
+        {
+            return false;
+        }
+
+        // Tile must not belong to another player
+        if (terrain.Owner is null && Units.Any(u => u.Pos == pos && u.Player != ActivePlayer))
         {
             return false;
         }
 
         var id = Guid.NewGuid();
         var name = _cityNameGenerator.Next();
-        var pos = SelectedUnit.Pos;
+        terrain.Owner = ActivePlayer;
         Events.Process(this, new CityFoundedEvent { PlayerId = ActivePlayer.Id, CityId = id, Name = name, Q = pos.Q, R = pos.R });
+
+        // Tiles around the city are now owned by the player
+        foreach (var neighbor in Map.Neighbors(pos))
+        {
+            if (Map[neighbor].Owner is null)
+            {
+                Map[neighbor].Owner = ActivePlayer;
+                Events.Process(this, new PlayerAcquireTile { PlayerId = ActivePlayer.Id, Pos = neighbor });
+            }
+        }
+
         return true;
     }
 

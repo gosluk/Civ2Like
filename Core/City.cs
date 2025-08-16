@@ -16,18 +16,31 @@ public sealed class City : IIdObject
 
     public uint Production { get; set; }
 
+    public uint Growth { get; set; }
+
+    public uint Population { get; set; } = 1;
+
     public City(Player owner, string name, Hex pos)
     {
         Player = owner; Name = name; Pos = pos;
+
+        Growth = 3;
 
         SetProduction();
     }
 
     public void SetProduction() => Production = 5;
 
+    public void SetGrowth() => Growth = 3 + Population / 2;
+
     public IEnumerable<IGameEvent> EndOfTurnEvents()
     {
-        yield return new CityProductionProcessed
+        yield return new CityProductionProgressedEvent
+        {
+            CityId = Id,
+        };
+
+        yield return new CityGrowthProgressedEvent
         {
             CityId = Id,
         };

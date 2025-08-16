@@ -5,4 +5,6 @@ public sealed class Tile
     public Terrain Terrain { get; }
 
     public Tile(Terrain terrain) { Terrain = terrain; }
+
+    public Player? Owner { get; set; }
 }

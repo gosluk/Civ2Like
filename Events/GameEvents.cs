@@ -28,11 +28,9 @@ public sealed class UnitMovedEvent : IGameEvent
     }
 }
 
-public sealed class CityProductionProcessed : IGameEvent
+public sealed class CityProductionProgressedEvent : IGameEvent
 {
-    public int Progress { get; set; }
-
-    public Guid CityId { get; set; }
+    public Guid CityId { get; init; }
 
     public void Apply(Game game)
     {
@@ -47,6 +45,90 @@ public sealed class CityProductionProcessed : IGameEvent
             city.SetProduction();
             game.Events.Process(game, new UnitCreatedEvent { CityId = city.Id });
         }
+    }
+}
+
+public sealed class CityGrowthProgressedEvent : IGameEvent
+{
+    public Guid CityId { get; init; }
+
+    public void Apply(Game game)
+    {
+        City city = game.Cities[CityId];
+
+        if (city.Growth > 1)
+        {
+            city.Growth--;
+        }
+        else
+        {
+            city.SetGrowth();
+            city.Population++;
+
+            Hex? nextTile = FindNextTileToAcquire(game, city.Pos);
+
+            if (nextTile is not null)
+            {
+                game.Events.Process(game, new PlayerAcquireTile { PlayerId = city.Player.Id, Pos = nextTile.Value });
+            }
+
+            game.Events.Process(game, new CityPopulationUpdateEvent { CityId = city.Id, PopulationChange = 1, });
+        }
+    }
+
+    private Hex? FindNextTileToAcquire(Game game, Hex pos)
+    {
+        Random rand = new();
+
+        // Level 1 neighbours
+        foreach (var neighbour0 in game.Map.Neighbors(pos).OrderBy(_ => rand.Next()))
+        {
+            if (game.Map[neighbour0].Owner is null)
+            {
+                return neighbour0;
+            }
+        }
+
+        // Level 2 neighbours
+        foreach (var neighbour0 in game.Map.Neighbors(pos).OrderBy(_ => rand.Next()))
+        {
+            foreach (var neighbour1 in game.Map.Neighbors(neighbour0).OrderBy(_ => rand.Next()))
+            {
+                if (game.Map[neighbour1].Owner is null)
+                {
+                    return neighbour1;
+                }
+            }
+        }
+
+        // Level 3 neighbours
+        foreach (var neighbour0 in game.Map.Neighbors(pos).OrderBy(_ => rand.Next()))
+        {
+            foreach (var neighbour1 in game.Map.Neighbors(neighbour0).OrderBy(_ => rand.Next()))
+            {
+                foreach (var neighbour2 in game.Map.Neighbors(neighbour1).OrderBy(_ => rand.Next()))
+                {
+                    if (game.Map[neighbour2].Owner is null)
+                    {
+                        return neighbour2;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+}
+
+public sealed class CityPopulationUpdateEvent : IGameEvent
+{
+    public Guid CityId { get; init; }
+
+    public int PopulationChange { get; init; }
+
+    public void Apply(Game game)
+    {
+        City city = game.Cities[CityId];
     }
 }
 
@@ -70,7 +152,6 @@ public sealed class CityFoundedEvent : IGameEvent
     public string Name { get; set; } = "City";
     public int Q { get; set; }
     public int R { get; set; }
-    public DateTime Utc { get; set; } = DateTime.UtcNow;
 
     public void Apply(Game game)
     {
@@ -85,6 +166,18 @@ public sealed class CityFoundedEvent : IGameEvent
         {
             game.Cities.Add(city);
         }
+    }
+}
+
+public sealed class PlayerAcquireTile : IGameEvent
+{
+    public Guid PlayerId { get; set; }
+    
+    public Hex Pos { get; set; }
+
+    public void Apply(Game game)
+    {
+        game.Map[Pos].Owner = game.Players[PlayerId];
     }
 }
 

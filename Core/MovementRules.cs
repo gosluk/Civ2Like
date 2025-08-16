@@ -30,7 +30,7 @@ namespace Civ2Like
             switch (preset)
             {
                 case MovementPreset.Land:
-                    return new MovementRules().Block(Terrain.Ocean).Cost(Terrain.Forest, 2).Cost(Terrain.Hills, 2).Cost(Terrain.Mountains, 3);
+                    return new MovementRules().Block(Terrain.Ocean).Block(Terrain.Coast).Cost(Terrain.Forest, 2).Cost(Terrain.Hills, 2).Cost(Terrain.Mountains, 3);
                 case MovementPreset.Naval:
                     return new MovementRules()
                         .Block(Terrain.Grassland, Terrain.Plains, Terrain.Forest, Terrain.Hills, Terrain.Mountains, Terrain.Desert, Terrain.Tundra)

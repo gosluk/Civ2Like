@@ -2,7 +2,7 @@
 
 namespace Civ2Like.Core;
 
-public sealed class ListId<T> : List<T>
+public sealed class ListIdObjects<T> : List<T>
     where T : IIdObject
 {
     public T this[Guid id]

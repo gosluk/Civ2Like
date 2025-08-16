@@ -18,8 +18,9 @@ namespace Civ2Like
     {
         private readonly Game _game;
         private readonly Typeface _typeface = new("Segoe UI", weight: FontWeight.Bold);
-        private readonly double _size = GameConfig.HexSize;
-        private readonly double _pad  = 100;
+        private readonly double _sizeX = GameConfig.HexSizeX;
+        private readonly double _sizeY = GameConfig.HexSizeY;
+        private readonly double _pad  = GameConfig.HexSizeX + GameConfig.HexSizeY;
 
         private Hex? _hoverScreenHex;
         private Hex? _hoverWorldHex;
@@ -52,6 +53,19 @@ namespace Civ2Like
                 });
 
             LoadTerrain();
+
+            LoadUnits();
+
+            this.Width = GameConfig.Width * _sizeX * 1.8 + _pad + _origin.X;
+            this.Height = GameConfig.Height * _sizeY * 1.5 + _pad + _origin.Y;
+            this.HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left;
+            this.VerticalAlignment = Avalonia.Layout.VerticalAlignment.Top;
+        }
+
+        private void LoadUnits()
+        {
+            using var stream = AssetLoader.Open(new Uri("avares://Civ2Like/Resources/Units/Unit.png"));
+            _unitIcon = new Bitmap(stream);
         }
 
         private void LoadTerrain()
@@ -123,7 +137,7 @@ namespace Civ2Like
             for (int c = 0; c < GameConfig.Width; c++)
             {
                 var screenHex = _game.Map.FromColRow(c, r);
-                var (x, y) = HexLayout.HexToPixel(screenHex, _size);
+                var (x, y) = HexLayout.HexToPixel(screenHex, _sizeX, _sizeY);
                 if (x < minX) minX = x;
                 if (y < minY) minY = y;
             }
@@ -132,7 +146,7 @@ namespace Civ2Like
 
         private Point ToPixelScreen(Hex screenHex)
         {
-            var (x, y) = HexLayout.HexToPixel(_game.Map.Canonical(screenHex), _size);
+            var (x, y) = HexLayout.HexToPixel(_game.Map.Canonical(screenHex), _sizeX, _sizeY);
             return new Point(x + _origin.X, y + _origin.Y);
         }
 
@@ -156,7 +170,7 @@ namespace Civ2Like
 
         private Hex PixelToWorldHex(Point p)
         {
-            var approxScreen = HexLayout.PixelToHex(p.X - _origin.X, p.Y - _origin.Y, _size);
+            var approxScreen = HexLayout.PixelToHex(p.X - _origin.X, p.Y - _origin.Y, _sizeX, _sizeY);
             var (sc, sr) = ScreenColRowFromAxial(approxScreen);
             return WorldHexAtScreen(Mod(sc, GameConfig.Width), Mod(sr, GameConfig.Height));
         }
@@ -197,10 +211,9 @@ namespace Civ2Like
                 {
                     _currentPath = null;
                 }
-                else if (_game.SelectedUnit != null)
+                else if (_game.SelectedUnit is not null)
                 {
                     _currentPath = _game.FindPath(_game.SelectedUnit.Pos, world);
-                    _game.FollowPath(_currentPath);
                 }
             }
 
@@ -234,7 +247,10 @@ namespace Civ2Like
                 case Key.C: _game.TryFoundCity(); break;
                 case Key.Space:
                 case Key.M:
-                    if (_currentPath != null) _game.FollowPath(_currentPath);
+                    if (_currentPath is not null && _game.SelectedUnit is not null)
+                    {
+                        _game.FollowPath(_currentPath);
+                    }
                     break;
             }
 
@@ -250,7 +266,7 @@ namespace Civ2Like
                     var screenHex = _game.Map.FromColRow(c, r);
                     var worldHex = WorldHexAtScreen(c, r);
                     var t = _game.Map[worldHex].Terrain;
-                    DrawHexAt(ctx, screenHex, TerrainBrush(t), outline: Brushes.Black, thickness: 0);
+                    DrawHexAt(ctx, screenHex, TerrainBrush(t), outline: Brushes.Black, thickness: 1.5);
                 }
             }
         }
@@ -262,6 +278,7 @@ namespace Civ2Like
 
         private readonly static Pen PathPenNormal = new Pen(Brushes.White, 2);
         private readonly static Pen PathPenDashed = new Pen(Brushes.White, 2, dashStyle: new ImmutableDashStyle([1, 2], 0));
+        private readonly static Pen PathPenBlack = new Pen(Brushes.Black, 2);
 
         private void DrawCurrentPath(DrawingContext ctx)
         {
@@ -274,6 +291,12 @@ namespace Civ2Like
                     var a = ToPixelScreen(hexA);
                     var b = ToPixelScreen(hexB);
                     ctx.DrawLine(hexA.Distance(hexB) > 2 ? PathPenDashed : PathPenNormal, a, b);
+
+                    if (i == _currentPath.Count - 2)
+                    {
+                        ctx.DrawEllipse(Avalonia.Media.Brushes.Black, PathPenBlack, b, 7, 7);
+                        ctx.DrawEllipse(Avalonia.Media.Brushes.White, PathPenNormal, b, 5, 5);
+                    }
                 }
             }
         }
@@ -293,30 +316,25 @@ namespace Civ2Like
             }
         }
 
+        private IImage _unitIcon;
+
         private void DrawUnits(DrawingContext ctx)
         {
             foreach (var unit in _game.Units)
             {
                 var screenHex = ScreenHexFromWorld(unit.Pos);
                 var center = ToPixelScreen(screenHex);
-                var geo = new EllipseGeometry(new Rect(center.X - 16, center.Y - 16, 32, 32));
+                //var geo = new EllipseGeometry(new Rect(center.X - 16, center.Y - 16, 32, 32));
                 
-                ctx.DrawGeometry(Brushes.White, new Pen(Brushes.Black, 1), geo);
-                ctx.DrawText(new FormattedText(unit.Owner.Id.ToString("N").Substring(0, 3), CultureInfo.CurrentCulture, FlowDirection.LeftToRight, _typeface, 12, Brushes.Black), new Point(center.X - 8, center.Y - 8));
+                //ctx.DrawGeometry(Brushes.White, new Pen(Brushes.Black, 1), geo);
+                //ctx.DrawText(new FormattedText(unit.Owner.Id.ToString("N").Substring(0, 3), CultureInfo.CurrentCulture, FlowDirection.LeftToRight, _typeface, 12, Brushes.Black), new Point(center.X - 8, center.Y - 8));
+                ctx.DrawImage(_unitIcon, new Rect(center.X - _unitIcon.Size.Width / 2, center.Y - _unitIcon.Size.Height / 2, _unitIcon.Size.Width, _unitIcon.Size.Height));
 
                 if (unit == _game.SelectedUnit)
                 {
                     DrawHoveredHex(ctx, unit.Pos);
                 }
             }
-        }
-
-        private void DrawInfoText(DrawingContext ctx)
-        {
-            var hud = $"Turn {_game.Turn}  Player: {_game.ActivePlayer.Id:N}  MP: {_game.SelectedUnit?.MovesLeft ?? 0}  ViewOffset: ({_viewColOffset},{_viewRowOffset})  Log: {_game.Events.Log.Count}";
-
-            var formattedText = new FormattedText(hud, CultureInfo.CurrentCulture, FlowDirection.LeftToRight, _typeface, 14, Brushes.White);
-            ctx.DrawText(formattedText, new Point(50, 50));
         }
 
         public override void Render(DrawingContext ctx)
@@ -336,22 +354,20 @@ namespace Civ2Like
 
             DrawUnits(ctx);
 
-            DrawInfoText(ctx);
-
             DrawHexAt(ctx, new Hex(5, 0), TerrainBrush(Terrain.Plains), outline: Brushes.Black, thickness: 1);
         }
 
         private void DrawHexAt(DrawingContext ctx, Hex screenHex, IBrush? fill, IBrush? outline, double thickness = 1, bool dashed = false)
         {
             const int pointSize = 6;
-            var (cx, cy) = HexLayout.HexToPixel(_game.Map.Canonical(screenHex), _size);
+            var (cx, cy) = HexLayout.HexToPixel(_game.Map.Canonical(screenHex), _sizeX, _sizeY);
             cx += _origin.X;
             cy += _origin.Y;
 
             Span<Point> pts = stackalloc Point[pointSize];
             for (int i = 0; i < pointSize; i++)
             {
-                var (ox, oy) = HexLayout.CornerOffset(i, _size);
+                var (ox, oy) = HexLayout.CornerOffset(i, _sizeX, _sizeY);
                 pts[i] = new Point(cx + ox, cy + oy);
             }
 

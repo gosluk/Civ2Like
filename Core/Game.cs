@@ -14,11 +14,11 @@ namespace Civ2Like
         public Map Map { get; }
         public EventProcessor Events { get; }
 
-        public ListId<Player> Players { get; } = new();
+        public ListIdObjects<Player> Players { get; } = new();
 
-        public ListId<Unit> Units   { get; } = new();
+        public ListIdObjects<Unit> Units   { get; } = new();
 
-        public ListId<City>   Cities  { get; } = new();
+        public ListIdObjects<City>   Cities  { get; } = new();
 
         public int Turn        { get; internal set; } = 1;
         public int ActiveIndex { get; internal set; } = 0;
@@ -89,13 +89,15 @@ namespace Civ2Like
             foreach (var h in Map.AllHexes())
             {
                 double v = noise[h];
-                var t = v < 0.38 ? Terrain.Ocean :
+                var t = v < 0.20 ? Terrain.Desert :
+                        v < 0.38 ? Terrain.Ocean :
                         v < 0.46 ? Terrain.Coast :
                         v < 0.60 ? Terrain.Grassland :
                         v < 0.70 ? Terrain.Plains :
                         v < 0.80 ? Terrain.Forest :
                         v < 0.88 ? Terrain.Hills :
-                                   Terrain.Mountains;
+                        v < 0.91 ? Terrain.Mountains :
+                            Terrain.Tundra;
                 Map[h] = new Tile(t);
             }
         }

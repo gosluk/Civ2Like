@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace Civ2Like
 {
@@ -6,17 +6,35 @@ namespace Civ2Like
     {
         private static readonly double SQRT3 = Math.Sqrt(3);
 
-        public static (double x, double y) HexToPixel(Hex h, double size)
+        public static (double x, double y) HexToPixel(Hex h, double sizeX, double sizeY)
         {
-            double x = size * (SQRT3 * h.Q + SQRT3 / 2 * h.R);
-            double y = size * (3.0 / 2.0 * h.R);
+            double x = sizeX * (SQRT3 * h.Q + SQRT3 / 2 * h.R);
+            double y = sizeY * (3.0 / 2.0 * h.R);
             return (x, y);
         }
 
-        public static Hex PixelToHex(double x, double y, double size)
+        //public static Hex PixelToHex(double x, double y, double sizeX, double sizeY)
+        //{
+        //    double q = (SQRT3 / 3 * x - 1.0 / 3.0 * y) / sizeX;
+        //    double r = (2.0 / 3.0 * y) / sizeY;
+        //    return CubeRound(q, r);
+        //}
+
+        public static Hex PixelToHex(double x, double y, double sizeX, double sizeY)
         {
-            double q = (SQRT3 / 3 * x - 1.0 / 3.0 * y) / size;
-            double r = (2.0 / 3.0 * y) / size;
+            if (sizeX == 0.0) throw new ArgumentOutOfRangeException(nameof(sizeX));
+            if (sizeY == 0.0) throw new ArgumentOutOfRangeException(nameof(sizeY));
+
+            // Normalize pixel coords by axis scales
+            double nx = x / sizeX;
+            double ny = y / sizeY;
+
+            // Inverse of:
+            // x = sizeX * (√3*q + √3/2*r)
+            // y = sizeY * (3/2*r)
+            double q = (SQRT3 / 3.0) * nx - (1.0 / 3.0) * ny;
+            double r = (2.0 / 3.0) * ny;
+
             return CubeRound(q, r);
         }
 
@@ -37,10 +55,10 @@ namespace Civ2Like
             return new Hex(rq, rr);
         }
 
-        public static (double x, double y) CornerOffset(int i, double size)
+        public static (double x, double y) CornerOffset(int i, double sizeX, double sizeY)
         {
             double angle = Math.PI / 180.0 * (60 * i - 30);
-            return (size * Math.Cos(angle), size * Math.Sin(angle));
+            return (sizeX * Math.Cos(angle), sizeY * Math.Sin(angle));
         }
     }
 }

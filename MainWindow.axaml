@@ -6,7 +6,14 @@
         Width="1400"
         Height="1000"
 		WindowStartupLocation="CenterScreen">
-  <Grid>
-    <local:GameView x:Name="GameView" Focusable="True" />
-  </Grid>
+	<DockPanel LastChildFill="True">
+		<WrapPanel DockPanel.Dock="Top">
+			<Button Content="Game" />
+		</WrapPanel>
+		<ScrollViewer HorizontalScrollBarVisibility="Visible"
+					VerticalScrollBarVisibility="Visible"
+					  AllowAutoHide="False">
+			<local:GameView x:Name="GameView" Focusable="True" />
+		</ScrollViewer>
+	</DockPanel>
 </Window>

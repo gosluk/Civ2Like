@@ -1,22 +1,21 @@
 using Avalonia.Media;
 using Civ2Like.View.Core.Interfaces;
 
-namespace Civ2Like.View
+namespace Civ2Like.Core;
+
+public sealed class Player : IIdObject
 {
-    public sealed class Player : IIdObject
-    {
-        public Guid Id { get; }
+    public Guid Id { get; }
 
-        public Player(Guid id) => Id = id;
+    public Player(Guid id) => Id = id;
 
-        public string Name { get; set; } = "Player";
+    public string Name { get; set; } = "Player";
 
-        public Color ColorA { get; set; } = Colors.Black;
+    public Color ColorA { get; set; } = Colors.Black;
 
-        public Color ColorB { get; set; } = Colors.Black;
+    public Color ColorB { get; set; } = Colors.Black;
 
-        public override bool Equals(object? obj) => obj is Player p && Id == p.Id;
+    public override bool Equals(object? obj) => obj is Player p && Id == p.Id;
 
-        public override int GetHashCode() => Id.GetHashCode();
-    }
+    public override int GetHashCode() => Id.GetHashCode();
 }

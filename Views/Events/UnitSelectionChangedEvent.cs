@@ -1,4 +1,6 @@
 ﻿using Avalonia.Media;
+using Civ2Like.Core;
+using Civ2Like.Hexagon;
 
 namespace Civ2Like.View.Views.Events;
 

@@ -7,6 +7,8 @@ using Avalonia.Media.Immutable;
 using Avalonia.Media.TextFormatting;
 using Avalonia.Platform;
 using Avalonia.Threading;
+using Civ2Like.Core;
+using Civ2Like.Hexagon;
 using Civ2Like.View.Views.Events;
 using CommunityToolkit.Mvvm.Messaging;
 using System.Collections.Immutable;

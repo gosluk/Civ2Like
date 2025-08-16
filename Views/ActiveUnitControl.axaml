@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 			 xmlns:local="using:Civ2Like.View"
+			 xmlns:controls="clr-namespace=Civ2Like.Views"
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
              x:Class="Civ2Like.View.ActiveUnitControl">
 	<Grid>

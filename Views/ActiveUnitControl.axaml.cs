@@ -1,12 +1,13 @@
 using Avalonia.Controls;
+using Civ2Like.Views.Models;
 
-namespace Civ2Like.View;
+namespace Civ2Like.Views;
 
 public partial class ActiveUnitControl : UserControl
 {
     public ActiveUnitControl()
     {
         InitializeComponent();
-        this.DataContext = new ActiveUnitControlModel();
+        DataContext = new ActiveUnitControlModel();
     }
 }

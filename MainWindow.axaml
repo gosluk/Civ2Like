@@ -1,16 +1,20 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:local="using:Civ2Like.View"
+        xmlns:local="using:Civ2Like.Views"
         x:Class="Civ2Like.MainWindow"
         Title="Civ2Like - Hex Starter v10"
         WindowState="Maximized"
 		WindowStartupLocation="CenterScreen">
 	<DockPanel LastChildFill="True">
 		<WrapPanel DockPanel.Dock="Top">
-			<Button Content="Game" />
 		</WrapPanel>
 		<StackPanel DockPanel.Dock="Right" Width="300">
-			<local:ActiveUnitControl x:Name="ActiveUnitControl"/>
+			<Border BorderThickness="1" BorderBrush="Black" CornerRadius="8" Margin="2">
+				<local:ActivePlayerControl x:Name="ActivePlayerControl" />
+			</Border>
+			<Border BorderThickness="1" BorderBrush="Black" CornerRadius="8" Margin="2">
+				<local:ActiveUnitControl x:Name="ActiveUnitControl"/>
+			</Border>
 		</StackPanel>
 		<ScrollViewer HorizontalScrollBarVisibility="Auto"
 					VerticalScrollBarVisibility="Auto"

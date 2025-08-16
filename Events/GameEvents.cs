@@ -187,7 +187,7 @@ public sealed class PlayerAcquireTile : IGameEvent
 public sealed class TurnEndedEvent : IGameEvent
 {
     public int NewActiveIndex { get; set; }
-    public int NewTurn { get; set; }
+    public uint NewTurn { get; set; }
     public DateTime Utc { get; set; } = DateTime.UtcNow;
     public void Apply(Game game)
     {

@@ -2,7 +2,8 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
 
-namespace Civ2Like.Views; // <-- match your namespace
+namespace Civ2Like.Views;
+
 public partial class PlayerFlag : UserControl
 {
     public static readonly DirectProperty<PlayerFlag, IBrush?> PrimaryBrushProperty =

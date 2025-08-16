@@ -1,33 +1,16 @@
 ﻿using Avalonia.Media;
 using Civ2Like.Hexagon;
-using Civ2Like.View;
 using Civ2Like.View.Views.Events;
 using CommunityToolkit.Mvvm.Messaging;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+
+namespace Civ2Like.Views.Models;
 
 internal class ActiveUnitControlModel
-    : IRecipient<UnitSelectionChangedEvent>, INotifyPropertyChanged, IDisposable
+    : BaseModel, IRecipient<UnitSelectionChangedEvent>
 {
     public ActiveUnitControlModel()
     {
         WeakReferenceMessenger.Default.Register(this);
-    }
-
-    public event PropertyChangedEventHandler? PropertyChanged;
-    protected void OnPropertyChanged([CallerMemberName] string? name = null)
-        => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-
-    protected bool SetProperty<T>(ref T field, T value, [CallerMemberName] string? name = null)
-    {
-        if (Equals(field, value))
-        {
-            return false;
-        }
-
-        field = value;
-        OnPropertyChanged(name);
-        return true;
     }
 
     private Guid? _unitId;
@@ -113,10 +96,5 @@ internal class ActiveUnitControlModel
             ColorA = new SolidColorBrush(Colors.Black);
             ColorB = ColorA;
         }
-    }
-
-    public void Dispose()
-    {
-        WeakReferenceMessenger.Default.UnregisterAll(this);
     }
 }

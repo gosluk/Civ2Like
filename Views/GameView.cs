@@ -7,14 +7,16 @@ using Avalonia.Media.Immutable;
 using Avalonia.Media.TextFormatting;
 using Avalonia.Platform;
 using Avalonia.Threading;
+using Civ2Like.Config;
 using Civ2Like.Core;
 using Civ2Like.Hexagon;
 using Civ2Like.View.Views.Events;
+using Civ2Like.Views.Events;
 using CommunityToolkit.Mvvm.Messaging;
 using System.Collections.Immutable;
 using System.Threading.Tasks.Dataflow;
 
-namespace Civ2Like.View;
+namespace Civ2Like.Views;
 
 public sealed class GameView : Control
 {
@@ -214,6 +216,11 @@ public sealed class GameView : Control
         }
     }
 
+    private void SelectPlayer(Player player)
+    {
+        WeakReferenceMessenger.Default.Send(new PlayerSelectionChangedEvent(_game, player));
+    }
+
     private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
     {
         var p = e.GetPosition(this);
@@ -252,6 +259,8 @@ public sealed class GameView : Control
             }
         }
 
+        SelectPlayer(_game.ActivePlayer);
+
         InvalidateVisual();
         Focus();
     }
@@ -284,6 +293,7 @@ public sealed class GameView : Control
             case Key.Space:
                 _game.EndTurn();
                 SelectUnit(_game.FindNextUnitToMove());
+                SelectPlayer(_game.ActivePlayer);
                 break;
             case Key.N:
                 SelectUnit(_game.FindNextUnitToMove());
@@ -296,6 +306,7 @@ public sealed class GameView : Control
                 break;
         }
 
+        SelectPlayer(_game.ActivePlayer);
         InvalidateVisual();
     }
 

@@ -15,6 +15,8 @@ public sealed class Player : IIdObject, IEquatable<Player>
 
     public Color ColorB { get; set; } = Colors.Black;
 
+    public long Gold { get; set; } = 0;
+
     public override bool Equals(object? obj) => obj is Player p && Id == p.Id;
 
     public override int GetHashCode() => Id.GetHashCode();

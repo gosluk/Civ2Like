@@ -2,10 +2,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-			 xmlns:local="using:Civ2Like.Views"
 			 xmlns:controls="using:Civ2Like.Views"
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
-             x:Class="Civ2Like.Views.ActiveUnitControl">
+             x:Class="Civ2Like.Views.ActivePlayerControl">
 	<Grid>
 		<StackPanel Margin="10">
 			<Grid Margin="0,0,0,20">
@@ -22,29 +21,27 @@
 					<RowDefinition Height="Auto" />
 				</Grid.RowDefinitions>
 
-				<TextBlock Text="Unit:" Margin="3,0" FontSize="14" FontWeight="Bold" Grid.Column="0"/>
-				<TextBlock Text="{Binding UnitName}" FontSize="14" Grid.Column="1"/>
-
-				<TextBlock Text="Player:" Margin="3,0" Grid.Column="0" Grid.Row="1"/>
-				<TextBlock Text="{Binding PlayerName}" FontSize="14" Grid.Column="1" Grid.Row="1"/>
-
-				<TextBlock Text="Positon:" Margin="3,0" Grid.Column="0" Grid.Row="2"/>
-				<TextBlock Text="{Binding Pos}" FontSize="14" Grid.Column="1" Grid.Row="2"/>
-
-				<TextBlock Text="Moves:" Margin="3,0" Grid.Column="0" Grid.Row="3"/>
-				<TextBlock Text="{Binding MovesLeft}" FontSize="14" Grid.Column="1" Grid.Row="3"/>
-
-				<TextBlock Text="Icon:" Margin="3,0" Grid.Column="0" Grid.Row="4"/>
-				<WrapPanel Grid.Column="1" Grid.Row="4">
-					<Image Source="{Binding Icon}" Stretch="None" Margin="3" />
+				<WrapPanel Grid.ColumnSpan="2">
 					<controls:PlayerFlag PrimaryBrush="{Binding ColorA}" SecondaryBrush="{Binding ColorB}"
 										 Margin="3"
 										 Height="32" Width="32"/>
+					<TextBlock Text="{Binding PlayerName}" FontSize="14" Grid.Column="1" VerticalAlignment="Center"/>
 				</WrapPanel>
 				
+
+				<TextBlock Text="Gold:" Margin="3,0" Grid.Column="0" Grid.Row="1"/>
+				<TextBlock Text="{Binding Gold}" FontSize="14" Grid.Column="1" Grid.Row="1"/>
+
+				<TextBlock Text="Binding No. of Units:" Margin="3,0" Grid.Column="0" Grid.Row="2"/>
+				<TextBlock Text="{Binding NumberOfUnits}" FontSize="14" Grid.Column="1" Grid.Row="2"/>
+
+				<TextBlock Text="Binding No. of Cities:" Margin="3,0" Grid.Column="0" Grid.Row="3"/>
+				<TextBlock Text="{Binding NumberOfCities}" FontSize="14" Grid.Column="1" Grid.Row="3"/>
+
+				<TextBlock Text="Turn:" Margin="3,0" Grid.Column="0" Grid.Row="4"/>
+				<TextBlock Text="{Binding Turn}" FontSize="14" Grid.Column="1" Grid.Row="4"/>
+
 			</Grid>
-			<Button Content="Fortify" Width="120" Height="30"/>
-			<Button Content="Disband" Width="120" Height="30"/>
 		</StackPanel>
 	</Grid>
 </UserControl>

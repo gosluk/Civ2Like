@@ -29,7 +29,7 @@ public sealed class Game
 
     public UnitNameGenerator UnitNameGenerator { get; } = new();
 
-    public int Turn        { get; internal set; } = 1;
+    public uint Turn        { get; internal set; } = 1;
     
     public int ActiveIndex { get; internal set; } = 0;
 

@@ -57,7 +57,7 @@ internal class UnitCreatedEvent : IGameEvent
     public void Apply(Game game)
     {
         var pos = game.Cities[CityId].Pos;
-        var player = game.Cities[CityId].Owner;
+        var player = game.Cities[CityId].Player;
 
         game.Units.Add(new Unit(player, pos, MovementPreset.Land));
     }

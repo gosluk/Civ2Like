@@ -8,7 +8,7 @@ public sealed class City : IIdObject
 {
     public Guid Id { get; internal set; }
     
-    public Player Owner { get; }
+    public Player Player { get; }
     
     public string Name { get; }
     
@@ -18,7 +18,7 @@ public sealed class City : IIdObject
 
     public City(Player owner, string name, Hex pos)
     {
-        Owner = owner; Name = name; Pos = pos;
+        Player = owner; Name = name; Pos = pos;
 
         SetProduction();
     }

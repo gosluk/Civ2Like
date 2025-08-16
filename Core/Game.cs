@@ -1,4 +1,5 @@
 using Avalonia.Media;
+using Civ2Like.Core.NameGeneration;
 using Civ2Like.Events;
 using Civ2Like.Hexagon;
 using Civ2Like.View;
@@ -22,6 +23,8 @@ public sealed class Game
     public ListIdObjects<Unit> Units   { get; } = new();
 
     public ListIdObjects<City>   Cities  { get; } = new();
+
+    private CityNameGenerator _cityNameGenerator = new();
 
     public int Turn        { get; internal set; } = 1;
     public int ActiveIndex { get; internal set; } = 0;
@@ -204,7 +207,7 @@ public sealed class Game
         }
 
         var id = Guid.NewGuid();
-        var name = $"City {id.ToString("N").Substring(0, 5)}";
+        var name = _cityNameGenerator.Next();
         var pos = SelectedUnit.Pos;
         Events.Process(this, new CityFoundedEvent { PlayerId = ActivePlayer.Id, CityId = id, Name = name, Q = pos.Q, R = pos.R });
         return true;

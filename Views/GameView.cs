@@ -60,18 +60,26 @@ public sealed class GameView : Control
 
         LoadTerrain();
 
-        LoadUnits();
+        LoadUnitsGraphics();
 
-        this.Width = GameConfig.Width * _sizeX * 1.8 + _pad + _origin.X;
-        this.Height = GameConfig.Height * _sizeY * 1.5 + _pad + _origin.Y;
-        this.HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left;
-        this.VerticalAlignment = Avalonia.Layout.VerticalAlignment.Top;
+        LoadCitiesGraphics();
+
+        Width = GameConfig.Width * _sizeX * 1.8 + _pad + _origin.X;
+        Height = GameConfig.Height * _sizeY * 1.5 + _pad + _origin.Y;
+        HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left;
+        VerticalAlignment = Avalonia.Layout.VerticalAlignment.Top;
     }
 
-    private void LoadUnits()
+    private void LoadUnitsGraphics()
     {
         using var stream = AssetLoader.Open(new Uri("avares://Civ2Like/Resources/Units/Unit.png"));
         _unitIcon = new Bitmap(stream);
+    }
+
+    private void LoadCitiesGraphics()
+    {
+        using var stream = AssetLoader.Open(new Uri("avares://Civ2Like/Resources/Board/City.png"));
+        _cityIcon = new Bitmap(stream);
     }
 
     private void LoadTerrain()
@@ -301,7 +309,7 @@ public sealed class GameView : Control
                 var screenHex = _game.Map.FromColRow(c, r);
                 var worldHex = WorldHexAtScreen(c, r);
                 var t = _game.Map[worldHex].Terrain;
-                DrawHexAt(ctx, screenHex, TerrainBrush(t), outline: Brushes.Black, thickness: 1.5);
+                DrawHexAt(ctx, screenHex, TerrainBrush(t), outline: Brushes.Black, thickness: 1.3);
             }
         }
     }
@@ -343,11 +351,13 @@ public sealed class GameView : Control
             var screenHex = ScreenHexFromWorld(city.Pos);
             var center = ToPixelScreen(screenHex);
             var rect = new Rect(center.X - 10, center.Y - 10, 20, 20);
-            ctx.DrawRectangle(Brushes.White, new Pen(Brushes.Black, 2), rect);
+
+            ctx.DrawImage(_cityIcon, new Rect(center.X - _cityIcon.Size.Width / 2, center.Y - _cityIcon.Size.Height / 2, _cityIcon.Size.Width, _cityIcon.Size.Height));
+            DrawFlag(ctx, center, city.Player);
 
             string cityName = $"{city.Name} [{city.Production}]";
             using var nameLayout = new TextLayout(cityName, _typeface, 12, Brushes.White);
-            nameLayout.Draw(ctx, new Point(center.X - nameLayout.Width / 2, center.Y - 20));
+            nameLayout.Draw(ctx, new Point(center.X - nameLayout.Width / 2, center.Y + _cityIcon.Size.Height / 2));
         }
     }
 
@@ -395,9 +405,9 @@ public sealed class GameView : Control
 
         DrawCurrentPath(ctx);
 
-        DrawCities(ctx);
-
         DrawUnits(ctx);
+
+        DrawCities(ctx);
 
         DrawHexAt(ctx, new Hex(5, 0), TerrainBrush(Terrain.Plains), outline: Brushes.Black, thickness: 1);
     }

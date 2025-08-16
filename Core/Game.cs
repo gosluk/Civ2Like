@@ -32,7 +32,7 @@ public sealed class Game
 
     public FactionNameGenerator FactionNameGenerator { get; } = new();
 
-    public uint Turn        { get; internal set; } = 1;
+    public uint Turn { get; internal set; } = 1;
     
     public int ActiveIndex { get; internal set; } = 0;
 
@@ -69,7 +69,7 @@ public sealed class Game
         var brushes = typeof(Colors).
             GetProperties(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy).
             ToArray();
-        Avalonia.Media.Color Get() => (Avalonia.Media.Color)brushes[_rng.Next(brushes.Length)].GetValue(null)!;
+        Avalonia.Media.Color Get() => (Avalonia.Media.Color)brushes[new Random().Next(brushes.Length)].GetValue(null)!;
 
         Players.Add(new Player(Guid.NewGuid())
         {

@@ -19,6 +19,10 @@ public sealed class Unit : IIdObject, IEquatable<Unit>
 
     public MovementRules Rules { get; }
 
+    public UnitState State { get; set; }
+
+    public uint Health { get; set; } = 100;
+
     public Unit(Player owner, Hex pos, MovementRules? rules = null)
     {
         Player = owner;

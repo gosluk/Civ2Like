@@ -7,6 +7,7 @@ using Civ2Like.View;
 using Civ2Like.View.Core;
 using DynamicData;
 using System.Reflection;
+using System.Xml.Linq;
 
 namespace Civ2Like.Core;
 
@@ -17,7 +18,14 @@ public sealed class Game
 
     public Map Map { get; }
 
-    public EventProcessor Events { get; }
+    private EventProcessor Events { get; }
+
+    public Game ProcessEvent(params IGameEvent[] gameEvents)
+    {
+        Events.Process(this, gameEvents);
+
+        return this;
+    }
 
     public ListIdObjects<Player> Players { get; } = new();
 
@@ -203,6 +211,7 @@ public sealed class Game
             SelectedUnit.Pos = to;
             SelectedUnit.MovesLeft -= cost;
 
+            Events.Process(this, new UnitStateChangedEvent() { UnitId = SelectedUnit.Id, NewState = UnitState.Ready });
             Events.Process(this, new UnitMovedEvent { UnitId = SelectedUnit.Id, FromQ = from.Q, FromR = from.R, ToQ = to.Q, ToR = to.R });
         }
     }
@@ -276,12 +285,12 @@ public sealed class Game
         Events.Process(this, new TurnEndedEvent { NewActiveIndex = ActiveIndex, NewTurn = Turn });
     }
 
-    public Unit? TrySelectUnitAt(Hex h)
+    public Unit? TrySelectUnitAt(Hex h, bool activate)
     {
         h = Map.Canonical(h);
         foreach (var u in Units)
         {
-            if (u.Pos == h && u.Player == ActivePlayer && u.MovesLeft > 0)
+            if (u.Pos == h && u.Player == ActivePlayer && u.MovesLeft > 0 && (u.State == UnitState.Ready || activate))
             {
                 SelectedUnit = u;
                 break;
@@ -292,6 +301,8 @@ public sealed class Game
 
     public Unit? FindNextUnitToMove()
     {
-        return Units.Where(i => i != SelectedUnit).FirstOrDefault(i => i.Player == ActivePlayer && i.MovesLeft > 0);
+        return Units.
+            Where(i => i != SelectedUnit).
+            FirstOrDefault(i => i.Player == ActivePlayer && i.MovesLeft > 0 && i.State == UnitState.Ready);
     }
 }

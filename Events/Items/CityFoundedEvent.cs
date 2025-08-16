@@ -5,11 +5,11 @@ namespace Civ2Like.Events.Items;
 
 public sealed class CityFoundedEvent : IGameEvent
 {
-    public Guid PlayerId { get; set; }
-    public Guid CityId { get; set; }
-    public string Name { get; set; } = "City";
-    public int Q { get; set; }
-    public int R { get; set; }
+    public required Guid PlayerId { get; init; }
+    public required Guid CityId { get; init; }
+    public required string Name { get; init; } = "City";
+    public required int Q { get; init; }
+    public required int R { get; init; }
 
     public void Apply(Game game)
     {

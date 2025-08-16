@@ -4,7 +4,7 @@ namespace Civ2Like.Events.Items;
 
 public sealed class CityProductionProgressedEvent : IGameEvent
 {
-    public Guid CityId { get; init; }
+    public required Guid CityId { get; init; }
 
     public void Apply(Game game)
     {
@@ -17,7 +17,7 @@ public sealed class CityProductionProgressedEvent : IGameEvent
         else
         {
             city.SetProduction();
-            game.Events.Process(game, new UnitCreatedEvent { Pos = city.Pos, PlayerId = city.Player.Id });
+            game.ProcessEvent(new UnitCreatedEvent { Pos = city.Pos, PlayerId = city.Player.Id });
         }
     }
 }

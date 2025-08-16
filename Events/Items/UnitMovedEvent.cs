@@ -5,12 +5,12 @@ namespace Civ2Like.Events.Items;
 
 public sealed class UnitMovedEvent : IGameEvent
 {
-    public Guid UnitId { get; set; }
-    public int FromQ { get; set; }
-    public int FromR { get; set; }
-    public int ToQ { get; set; }
-    public int ToR { get; set; }
-    public DateTime Utc { get; set; } = DateTime.UtcNow;
+    public required Guid UnitId { get; init; }
+    public required int FromQ { get; init; }
+    public required int FromR { get; init; }
+    public required int ToQ { get; init; }
+    public required int ToR { get; init; }
+
     public void Apply(Game game)
     {
         var u = game.Units.First(x => x.Id == UnitId);

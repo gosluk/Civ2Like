@@ -4,15 +4,15 @@ namespace Civ2Like.Events.Items;
 
 public sealed class TurnEndedEvent : IGameEvent
 {
-    public int NewActiveIndex { get; set; }
-    public uint NewTurn { get; set; }
-    public DateTime Utc { get; set; } = DateTime.UtcNow;
+    public required int NewActiveIndex { get; init; }
+    public required uint NewTurn { get; init; }
+
     public void Apply(Game game)
     {
         game.ActiveIndex = NewActiveIndex;
         game.Turn = NewTurn;
 
-        game.Events.Process(game, game.Cities.SelectMany(c => c.EndOfTurnEvents()).ToArray());
+        game.ProcessEvent(game.Cities.SelectMany(c => c.EndOfTurnEvents()).ToArray());
 
         foreach (var u in game.Units)
         {

@@ -5,9 +5,9 @@ namespace Civ2Like.Events.Items;
 
 internal class UnitCreatedEvent : IGameEvent
 {
-    public Hex Pos { get; set; }
+    public required Hex Pos { get; init; }
 
-    public Guid PlayerId { get; set; }
+    public required Guid PlayerId { get; init; }
 
     public void Apply(Game game)
     {

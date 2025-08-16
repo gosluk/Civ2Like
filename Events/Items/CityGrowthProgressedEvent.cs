@@ -5,7 +5,7 @@ namespace Civ2Like.Events.Items;
 
 public sealed class CityGrowthProgressedEvent : IGameEvent
 {
-    public Guid CityId { get; init; }
+    public required Guid CityId { get; init; }
 
     public void Apply(Game game)
     {
@@ -24,10 +24,10 @@ public sealed class CityGrowthProgressedEvent : IGameEvent
 
             if (nextTile is not null)
             {
-                game.Events.Process(game, new PlayerAcquireTile { PlayerId = city.Player.Id, Pos = nextTile.Value });
+                game.ProcessEvent(new PlayerAcquireTile { PlayerId = city.Player.Id, Pos = nextTile.Value });
             }
 
-            game.Events.Process(game, new CityPopulationUpdateEvent { CityId = city.Id, PopulationChange = 1, });
+            game.ProcessEvent(new CityPopulationUpdateEvent { CityId = city.Id, PopulationChange = 1, });
         }
     }
 

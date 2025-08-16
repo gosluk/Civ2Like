@@ -5,9 +5,10 @@ namespace Civ2Like.Events.Items;
 
 public sealed class PlayerAcquireTile : IGameEvent
 {
-    public Guid PlayerId { get; set; }
 
-    public Hex Pos { get; set; }
+    public required Guid PlayerId { get; init; }
+
+    public required Hex Pos { get; init; }
 
     public void Apply(Game game)
     {

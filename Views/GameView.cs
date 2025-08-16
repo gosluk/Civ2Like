@@ -9,6 +9,7 @@ using Avalonia.Platform;
 using Avalonia.Threading;
 using Civ2Like.Config;
 using Civ2Like.Core;
+using Civ2Like.Events.Items;
 using Civ2Like.Hexagon;
 using Civ2Like.View.Views.Events;
 using Civ2Like.Views.Events;
@@ -24,7 +25,7 @@ public sealed partial class GameView : Control, IDisposable
     private readonly Typeface _typeface = new("Segoe UI", weight: FontWeight.Bold);
     private readonly double _sizeX = GameConfig.HexSizeX;
     private readonly double _sizeY = GameConfig.HexSizeY;
-    private readonly double _pad  = GameConfig.HexSizeX + GameConfig.HexSizeY;
+    private readonly double _pad = GameConfig.HexSizeX + GameConfig.HexSizeY;
 
     private Hex? _hoverScreenHex;
     private Hex? _hoverWorldHex;
@@ -56,7 +57,8 @@ public sealed partial class GameView : Control, IDisposable
             },
             new ExecutionDataflowBlockOptions
             {
-                BoundedCapacity = 1, MaxDegreeOfParallelism = 1,
+                BoundedCapacity = 1,
+                MaxDegreeOfParallelism = 1,
             });
 
         LoadTerrain();
@@ -156,13 +158,13 @@ public sealed partial class GameView : Control, IDisposable
     {
         double minX = double.MaxValue, minY = double.MaxValue;
         for (int r = 0; r < GameConfig.Height; r++)
-        for (int c = 0; c < GameConfig.Width; c++)
-        {
-            var screenHex = _game.Map.FromColRow(c, r);
-            var (x, y) = HexLayout.HexToPixel(screenHex, _sizeX, _sizeY);
-            if (x < minX) minX = x;
-            if (y < minY) minY = y;
-        }
+            for (int c = 0; c < GameConfig.Width; c++)
+            {
+                var screenHex = _game.Map.FromColRow(c, r);
+                var (x, y) = HexLayout.HexToPixel(screenHex, _sizeX, _sizeY);
+                if (x < minX) minX = x;
+                if (y < minY) minY = y;
+            }
         return new Point(_pad - minX, _pad - minY);
     }
 
@@ -235,11 +237,11 @@ public sealed partial class GameView : Control, IDisposable
 
         var click = e.GetCurrentPoint(this).Properties;
 
-         if (click.IsLeftButtonPressed)
+        if (click.IsLeftButtonPressed)
         {
             if (_game.SelectedUnit is null)
             {
-                var selectedUnit = _game.TrySelectUnitAt(world);
+                var selectedUnit = _game.TrySelectUnitAt(world, true);
                 SelectUnit(selectedUnit);
             }
             else
@@ -276,21 +278,29 @@ public sealed partial class GameView : Control, IDisposable
     {
         switch (e.Key)
         {
-            case Key.Left:  _viewColOffset = Mod(_viewColOffset - 1, GameConfig.Width);  break;
-            case Key.Right: _viewColOffset = Mod(_viewColOffset + 1, GameConfig.Width);  break;
-            case Key.Up:    _viewRowOffset = Mod(_viewRowOffset - 2, GameConfig.Height); break;
-            case Key.Down:  _viewRowOffset = Mod(_viewRowOffset + 2, GameConfig.Height); break;
+            case Key.Left: _viewColOffset = Mod(_viewColOffset - 1, GameConfig.Width); break;
+            case Key.Right: _viewColOffset = Mod(_viewColOffset + 1, GameConfig.Width); break;
+            case Key.Up: _viewRowOffset = Mod(_viewRowOffset - 2, GameConfig.Height); break;
+            case Key.Down: _viewRowOffset = Mod(_viewRowOffset + 2, GameConfig.Height); break;
 
             case Key.S:
-                File.WriteAllText("events.json", _game.Events.ToJson());
+                //File.WriteAllText("events.json", _game.Events.ToJson());
                 break;
 
             case Key.L:
                 if (File.Exists("events.json"))
                 {
                     var json = File.ReadAllText("events.json");
-                    _game.Events.LoadFromJson(json);
-                    _game.Events.Replay(_game, _game.Events.Log);
+                    //_game.Events.LoadFromJson(json);
+                    //_game.Events.Replay(_game, _game.Events.Log);
+                }
+                break;
+
+            case Key.F:
+                if (_game.SelectedUnit is not null)
+                {
+                    _game.ProcessEvent(new UnitStateChangedEvent() { UnitId = _game.SelectedUnit.Id, NewState = UnitState.Fortified });
+                    WeakReferenceMessenger.Default.Send(new UnitSelectionChangedEvent(_game.SelectedUnit, _game.SelectedUnit.Player, _unitIcon));
                 }
                 break;
 
@@ -393,8 +403,8 @@ public sealed partial class GameView : Control, IDisposable
         const int margin = 1;
         const int size = 16;
         ctx.DrawRectangle(Brushes.Black, null, new Rect(pos.X, pos.Y, size, size), new BoxShadows(new BoxShadow() { Blur = 0.8 }));
-        
-        ctx.DrawRectangle(flagBrush0, null, new Rect(pos.X + margin, pos.Y + margin,   size - margin * 2, size / 2));
+
+        ctx.DrawRectangle(flagBrush0, null, new Rect(pos.X + margin, pos.Y + margin, size - margin * 2, size / 2));
         ctx.DrawRectangle(flagBrush1, null, new Rect(pos.X + margin, pos.Y + size / 2, size - margin * 2, size / 2 - margin));
     }
 
@@ -435,7 +445,7 @@ public sealed partial class GameView : Control, IDisposable
         Thickness t = new Thickness(1);
 
         tile.Children.Add(new Border { Background = b1, Width = tileSize, Height = tileSize, Margin = t });                 // (0,0)
-        
+
         tile.Children.Add(new Border { Background = b2, Width = tileSize, Height = tileSize, Margin = t }); // (0,1)
         Grid.SetColumn(tile.Children[1], tileSize);
 

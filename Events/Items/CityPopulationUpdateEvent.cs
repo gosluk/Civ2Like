@@ -4,9 +4,9 @@ namespace Civ2Like.Events.Items;
 
 public sealed class CityPopulationUpdateEvent : IGameEvent
 {
-    public Guid CityId { get; init; }
+    public required Guid CityId { get; init; }
 
-    public int PopulationChange { get; init; }
+    public required int PopulationChange { get; init; }
 
     public void Apply(Game game)
     {

@@ -20,6 +20,9 @@
 					<RowDefinition Height="Auto" />
 					<RowDefinition Height="Auto" />
 					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
 				</Grid.RowDefinitions>
 
 				<TextBlock Text="Unit:" Margin="3,0" FontSize="14" FontWeight="Bold" Grid.Column="0"/>
@@ -41,6 +44,12 @@
 										 Margin="3"
 										 Height="32" Width="32"/>
 				</WrapPanel>
+
+				<TextBlock Text="State:" Margin="3,0" Grid.Column="0" Grid.Row="5"/>
+				<TextBlock Text="{Binding State}" FontSize="14" Grid.Column="1" Grid.Row="5"/>
+
+				<TextBlock Text="Health:" Margin="3,0" Grid.Column="0" Grid.Row="6"/>
+				<TextBlock Text="{Binding Health}" FontSize="14" Grid.Column="1" Grid.Row="6"/>
 				
 			</Grid>
 			<Grid>

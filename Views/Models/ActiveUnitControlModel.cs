@@ -1,4 +1,5 @@
 ﻿using Avalonia.Media;
+using Civ2Like.Core;
 using Civ2Like.Hexagon;
 using Civ2Like.View.Views.Events;
 using Civ2Like.Views.Events;
@@ -90,12 +91,27 @@ internal class ActiveUnitControlModel
 
     public bool IsAutoCenterOnUnit { get; set; }
 
+    private uint _health;
+    public uint Health
+    {
+        get => _health;
+        set => SetProperty(ref _health, value);
+    }
+
+    private UnitState? _state;
+    public UnitState? State
+    {
+        get => _state;
+        set => SetProperty(ref _state, value);
+    }
+
     private bool _isSelected;
     public bool IsSelected
     {
         get => _isSelected;
         set => SetProperty(ref _isSelected, value);
     }
+
     private void CenterOnUnit()
     {
         if (UnitId is not null)
@@ -113,6 +129,8 @@ internal class ActiveUnitControlModel
         Pos = message.Pos;
         MovesLeft = message.MovesLeft;
         Icon = message.Icon;
+        Health = message.Health;
+        State = message.State;
 
         IsSelected = message.IsSelected;
 

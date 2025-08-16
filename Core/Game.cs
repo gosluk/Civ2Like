@@ -35,8 +35,8 @@ namespace Civ2Like
             Players.Add(new Player(Guid.NewGuid()));
             Players.Add(new Player(Guid.NewGuid()));
 
-            GenerateWorld();
-            ////sMapGeneration.GenerateWorld_BigContinents(Map);
+            //GenerateWorld();
+            MapGeneration.ImproveGame.GenerateWorld(Map, _rng.Next() + 400, MapGeneration.WorldFlavor.Islands);
 
             int row = height / 2;
             Hex left  = Map.FromColRow(0, row);
@@ -67,39 +67,6 @@ namespace Civ2Like
                 if (Map[h].Terrain != Terrain.Ocean) return h;
             }
             return start;
-        }
-
-        private void GenerateWorld()
-        {
-            var noise = new Dictionary<Hex, double>();
-            foreach (var h in Map.AllHexes()) noise[h] = _rng.NextDouble();
-
-            for (int it = 0; it < 2; it++)
-            {
-                var next = new Dictionary<Hex, double>(noise.Count);
-                foreach (var h in Map.AllHexes())
-                {
-                    double sum = noise[h]; int cnt = 1;
-                    foreach (var n in Map.Neighbors(h)) { sum += noise[n]; cnt++; }
-                    next[h] = sum / cnt;
-                }
-                noise = next;
-            }
-
-            foreach (var h in Map.AllHexes())
-            {
-                double v = noise[h];
-                var t = v < 0.20 ? Terrain.Desert :
-                        v < 0.38 ? Terrain.Ocean :
-                        v < 0.46 ? Terrain.Coast :
-                        v < 0.60 ? Terrain.Grassland :
-                        v < 0.70 ? Terrain.Plains :
-                        v < 0.80 ? Terrain.Forest :
-                        v < 0.88 ? Terrain.Hills :
-                        v < 0.91 ? Terrain.Mountains :
-                            Terrain.Tundra;
-                Map[h] = new Tile(t);
-            }
         }
 
         private static int ToroidalHeuristic(Map map, Hex a, Hex b)

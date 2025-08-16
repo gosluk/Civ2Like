@@ -82,13 +82,21 @@ internal class ActiveUnitControlModel
     public void Receive(UnitSelectionChangedEvent message)
     {
         UnitId = message.UnitId;
-        PlayerId = message.Player!.Id;
+        PlayerId = message.Player?.Id ?? Guid.Empty;
         Pos = message.Pos;
         MovesLeft = message.MovesLeft;
         Icon = message.Icon;
 
-        ColorA = new SolidColorBrush(message.Player.ColorA);
-        ColorB = new SolidColorBrush(message.Player.ColorB);
+        if (message.IsSelected)
+        {
+            ColorA = new SolidColorBrush(message.Player!.ColorA);
+            ColorB = new SolidColorBrush(message.Player!.ColorB);
+        }
+        else
+        {
+            ColorA = new SolidColorBrush(Colors.Black);
+            ColorB = ColorA;
+        }
     }
 
     public void Dispose()

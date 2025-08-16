@@ -22,23 +22,26 @@
 					<RowDefinition Height="Auto" />
 				</Grid.RowDefinitions>
 
-				<TextBlock Text="Unit:" FontSize="14" FontWeight="Bold" Grid.Column="0"/>
+				<TextBlock Text="Unit:" Margin="3,0" FontSize="14" FontWeight="Bold" Grid.Column="0"/>
 				<TextBlock Text="{Binding UnitId}" FontSize="14" Grid.Column="1"/>
 
-				<TextBlock Text="Player:" Grid.Column="0" Grid.Row="1"/>
+				<TextBlock Text="Player:" Margin="3,0" Grid.Column="0" Grid.Row="1"/>
 				<TextBlock Text="{Binding PlayerId}" FontSize="14" Grid.Column="1" Grid.Row="1"/>
 
-				<TextBlock Text="Positon:" Grid.Column="0" Grid.Row="2"/>
+				<TextBlock Text="Positon:" Margin="3,0" Grid.Column="0" Grid.Row="2"/>
 				<TextBlock Text="{Binding Pos}" FontSize="14" Grid.Column="1" Grid.Row="2"/>
 
-				<TextBlock Text="Moves:" Grid.Column="0" Grid.Row="3"/>
+				<TextBlock Text="Moves:" Margin="3,0" Grid.Column="0" Grid.Row="3"/>
 				<TextBlock Text="{Binding MovesLeft}" FontSize="14" Grid.Column="1" Grid.Row="3"/>
 
-				<TextBlock Text="Icon:" Grid.Column="0" Grid.Row="4"/>
-				<Image Source="{Binding Icon}" Stretch="None" Grid.Column="1" Grid.Row="4"/>
-				<controls:PlayerFlag PrimaryBrush="{Binding ColorA}" SecondaryBrush="{Binding ColorB}"
-									 MaxHeight="64" MaxWidth="64"
-									 Grid.Column="1" Grid.Row="4" />
+				<TextBlock Text="Icon:" Margin="3,0" Grid.Column="0" Grid.Row="4"/>
+				<WrapPanel Grid.Column="1" Grid.Row="4">
+					<Image Source="{Binding Icon}" Stretch="None" Margin="3" />
+					<controls:PlayerFlag PrimaryBrush="{Binding ColorA}" SecondaryBrush="{Binding ColorB}"
+										 Margin="3"
+										 Height="32" Width="32"/>
+				</WrapPanel>
+				
 			</Grid>
 			<Button Content="Fortify" Width="120" Height="30"/>
 			<Button Content="Disband" Width="120" Height="30"/>

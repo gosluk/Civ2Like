@@ -4,7 +4,7 @@ using Civ2Like.View.Core.Interfaces;
 
 namespace Civ2Like.Core;
 
-public sealed class Unit : IIdObject
+public sealed class Unit : IIdObject, IEquatable<Unit>
 {
     public Guid Id { get; internal set; }
 
@@ -29,4 +29,10 @@ public sealed class Unit : IIdObject
     }
 
     public Unit(Player owner, Hex pos, MovementPreset preset) : this(owner, pos, MovementRules.FromPreset(preset)) { }
+
+    public bool Equals(Unit? other) => Id.Equals(other?.Id);
+
+    public override int GetHashCode() => Id.GetHashCode();
+
+    public override bool Equals(object? obj) => obj is Unit other && Equals(other);
 }

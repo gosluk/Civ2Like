@@ -224,11 +224,10 @@ public sealed class Game
             }
         }
 
-        SelectedUnit = Units.First(u => u.Player == ActivePlayer);
         Events.Process(this, new TurnEndedEvent { NewActiveIndex = ActiveIndex, NewTurn = Turn });
     }
 
-    public bool TrySelectUnitAt(Hex h)
+    public Unit? TrySelectUnitAt(Hex h)
     {
         h = Map.Canonical(h);
         foreach (var u in Units)
@@ -236,9 +235,14 @@ public sealed class Game
             if (u.Pos == h && u.Player == ActivePlayer && u.MovesLeft > 0)
             {
                 SelectedUnit = u;
-                return true;
+                break;
             }
         }
-        return false;
+        return SelectedUnit;
+    }
+
+    public Unit? FindNextUnitToMove()
+    {
+        return Units.Where(i => i != SelectedUnit).FirstOrDefault(i => i.Player == ActivePlayer && i.MovesLeft > 0);
     }
 }

@@ -34,6 +34,9 @@ public sealed class GameView : Control
     private int _viewColOffset = 0;
     private int _viewRowOffset = 0;
 
+    private IImage _unitIcon;
+    private IImage _cityIcon;
+
     public GameView()
     {
         _game = new Game(GameConfig.Width, GameConfig.Height, GameConfig.Seed);
@@ -189,6 +192,21 @@ public sealed class GameView : Control
         _hoverNotifier.Post(string.Empty);
     }
 
+    private void SelectUnit(Unit? unit)
+    {
+        _game.SelectedUnit = unit;
+
+        if (unit is null)
+        {
+            WeakReferenceMessenger.Default.Send(new UnitSelectionChangedEvent());
+        }
+        else
+        {
+            _currentPath = null;
+            WeakReferenceMessenger.Default.Send(new UnitSelectionChangedEvent(unit, unit.Player, _unitIcon));
+        }
+    }
+
     private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
     {
         var p = e.GetPosition(this);
@@ -196,38 +214,32 @@ public sealed class GameView : Control
 
         var click = e.GetCurrentPoint(this).Properties;
 
-        if (click.IsLeftButtonPressed)
+         if (click.IsLeftButtonPressed)
         {
             if (_game.SelectedUnit is null)
             {
-                if (_game.TrySelectUnitAt(world))
-                {
-                    _currentPath = null;
-                    WeakReferenceMessenger.Default.Send(new UnitSelectionChangedEvent(_game.SelectedUnit!, _game.SelectedUnit!.Player, _unitIcon));
-                }
-                else
-                {
-                    _currentPath = null;
-                    WeakReferenceMessenger.Default.Send(new UnitSelectionChangedEvent());
-                }
+                var selectedUnit = _game.TrySelectUnitAt(world);
+                SelectUnit(selectedUnit);
             }
             else
             {
+                void EvaluatePath() => _currentPath = _game.FindPath(_game.SelectedUnit.Pos, world);
+
                 if (_currentPath is null)
                 {
-                    _currentPath = _game.FindPath(_game.SelectedUnit.Pos, world);
+                    EvaluatePath();
                 }
                 else
                 {
                     if (_currentPath.Count > 1 && _currentPath[^1] == world)
                     {
                         _game.FollowPath(_currentPath);
+                        WeakReferenceMessenger.Default.Send(new UnitSelectionChangedEvent(_game.SelectedUnit!, _game.SelectedUnit!.Player, _unitIcon));
                         _currentPath = null;
                     }
                     else
                     {
-                        _game.SelectedUnit = null;
-                        _currentPath = null;
+                        EvaluatePath();
                     }
                 }
             }
@@ -259,9 +271,17 @@ public sealed class GameView : Control
                 }
                 break;
 
-            case Key.C: _game.TryFoundCity(); break;
+            case Key.C:
+                _game.TryFoundCity();
+                break;
+            case Key.N:
+                SelectUnit(_game.FindNextUnitToMove());
+                break;
             case Key.Space:
-                _game.EndTurn(); break;
+                _game.EndTurn();
+                _currentPath = null;
+                SelectUnit(null);
+                break;
             case Key.M:
                 if (_currentPath is not null && _game.SelectedUnit is not null)
                 {
@@ -332,8 +352,6 @@ public sealed class GameView : Control
         }
     }
 
-    private IImage _unitIcon;
-
     private void DrawFlag(DrawingContext ctx, Point center, Player player)
     {
         Point pos = new Point(center.X + 10, center.Y - 10);
@@ -344,7 +362,7 @@ public sealed class GameView : Control
         const int size = 16;
         ctx.DrawRectangle(Brushes.Black, null, new Rect(pos.X, pos.Y, size, size), new BoxShadows(new BoxShadow() { Blur = 0.8 }));
         
-        ctx.DrawRectangle(flagBrush0, null, new Rect(pos.X + margin, pos.Y + margin,            size - margin * 2, size / 2));
+        ctx.DrawRectangle(flagBrush0, null, new Rect(pos.X + margin, pos.Y + margin,   size - margin * 2, size / 2));
         ctx.DrawRectangle(flagBrush1, null, new Rect(pos.X + margin, pos.Y + size / 2, size - margin * 2, size / 2 - margin));
     }
 

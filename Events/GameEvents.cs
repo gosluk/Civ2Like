@@ -108,8 +108,6 @@ public sealed class TurnEndedEvent : IGameEvent
             }
         }
 
-        game.SelectedUnit = game.Units.First(u => u.Player == game.ActivePlayer);
-
-        //game.Events.Process(game, new TurnEndedEvent { NewActiveIndex = NewActiveIndex, NewTurn = NewTurn });
+        //game.SelectedUnit = game.Units.First(u => u.Player == game.ActivePlayer);
     }
 }

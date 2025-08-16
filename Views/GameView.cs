@@ -387,21 +387,62 @@ public sealed class GameView : Control
 
             if (unit == _game.SelectedUnit)
             {
-                DrawHoveredHex(ctx, unit.Pos);
+                DrawHoveredHex(ctx, ScreenHexFromWorld(unit.Pos));
             }
         }
+    }
+
+    private IBrush CreateBorderFillBrush(Color c1, Color c2)
+    {
+        const int tileSize = 2;
+        var tile = new Grid
+        {
+            Width = tileSize * 4,
+            Height = tileSize * 4,
+            RowDefinitions = new RowDefinitions("*,*"),
+            ColumnDefinitions = new ColumnDefinitions("* ,*")
+        };
+        tile.RowDefinitions.Add(new RowDefinition());
+        tile.RowDefinitions.Add(new RowDefinition());
+        tile.ColumnDefinitions.Add(new ColumnDefinition());
+        tile.ColumnDefinitions.Add(new ColumnDefinition());
+
+        SolidColorBrush b1 = new SolidColorBrush(c2);
+        SolidColorBrush b2 = new SolidColorBrush(c1);
+        Thickness t = new Thickness(1);
+
+        tile.Children.Add(new Border { Background = b1, Width = tileSize, Height = tileSize, Margin = t });                 // (0,0)
+        
+        tile.Children.Add(new Border { Background = b2, Width = tileSize, Height = tileSize, Margin = t }); // (0,1)
+        Grid.SetColumn(tile.Children[1], tileSize);
+
+        tile.Children.Add(new Border { Background = b2, Width = tileSize, Height = tileSize, Margin = t });    // (1,0)
+        Grid.SetRow(tile.Children[2], tileSize);
+
+        tile.Children.Add(new Border { Background = b1, Width = tileSize, Height = tileSize, Margin = t }); // (1,1)
+        Grid.SetColumn(tile.Children[3], tileSize);
+        Grid.SetRow(tile.Children[3], tileSize);
+
+        return new VisualBrush
+        {
+            Visual = tile,
+            Stretch = Stretch.None,           // use exact tile size
+            TileMode = TileMode.Tile,         // repeat
+            Opacity = 0.6,
+            DestinationRect = new RelativeRect(new Rect(0, 0, tileSize * 4, tileSize * 4), RelativeUnit.Absolute)
+        };
     }
 
     private void DrawBorders(DrawingContext ctx)
     {
         foreach (var player in _game.Players)
         {
-            IBrush fill = new SolidColorBrush(player.ColorA, opacity: 0.4);
-            IBrush outline = new SolidColorBrush(player.ColorB, opacity: 0.7);
+            IBrush fill = CreateBorderFillBrush(player.ColorA, player.ColorB);
+            IBrush outline = new SolidColorBrush(player.ColorA, opacity: 0.78);
             foreach (var tile in _game.Map.MapData.Where(i => i.Value.Owner == player))
             {
                 var screenHex = ScreenHexFromWorld(tile.Key);
-                DrawHexAt(ctx, screenHex, fill: fill, outline: outline, thickness: 6, dashed: true, dashes: [0.5]);
+                DrawHexAt(ctx, screenHex, fill: fill, outline: outline, thickness: 4, dashed: true, dashes: [1, 0.3]);
             }
         }
     }

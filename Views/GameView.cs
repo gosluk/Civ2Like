@@ -9,10 +9,8 @@ using Avalonia.Platform;
 using Avalonia.Threading;
 using Civ2Like.View.Views.Events;
 using CommunityToolkit.Mvvm.Messaging;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Globalization;
-using System.Reactive;
+using System.Drawing.Printing;
 using System.Threading.Tasks.Dataflow;
 
 namespace Civ2Like.View;
@@ -259,9 +257,9 @@ public sealed class GameView : Control
                 }
                 break;
 
-            case Key.E: _game.EndTurn(); break;
             case Key.C: _game.TryFoundCity(); break;
             case Key.Space:
+                _game.EndTurn(); break;
             case Key.M:
                 if (_currentPath is not null && _game.SelectedUnit is not null)
                 {
@@ -334,16 +332,28 @@ public sealed class GameView : Control
 
     private IImage _unitIcon;
 
+    private void DrawFlag(DrawingContext ctx, Point center, Player player)
+    {
+        Point pos = new Point(center.X + 10, center.Y - 10);
+        var flagBrush0 = new SolidColorBrush(player.ColorA);
+        var flagBrush1 = new SolidColorBrush(player.ColorB);
+
+        const int margin = 1;
+        const int size = 16;
+        ctx.DrawRectangle(Brushes.Black, null, new Rect(pos.X, pos.Y, size, size), new BoxShadows(new BoxShadow() { Blur = 0.8 }));
+        
+        ctx.DrawRectangle(flagBrush0, null, new Rect(pos.X + margin, pos.Y + margin,            size - margin * 2, size / 2));
+        ctx.DrawRectangle(flagBrush1, null, new Rect(pos.X + margin, pos.Y + size / 2, size - margin * 2, size / 2 - margin));
+    }
+
     private void DrawUnits(DrawingContext ctx)
     {
         foreach (var unit in _game.Units)
         {
             var screenHex = ScreenHexFromWorld(unit.Pos);
             var center = ToPixelScreen(screenHex);
-            //var geo = new EllipseGeometry(new Rect(center.X - 16, center.Y - 16, 32, 32));
-            
-            //ctx.DrawGeometry(Brushes.White, new Pen(Brushes.Black, 1), geo);
-            //ctx.DrawText(new FormattedText(unit.Owner.Id.ToString("N").Substring(0, 3), CultureInfo.CurrentCulture, FlowDirection.LeftToRight, _typeface, 12, Brushes.Black), new Point(center.X - 8, center.Y - 8));
+
+            DrawFlag(ctx, center, unit.Owner);
             ctx.DrawImage(_unitIcon, new Rect(center.X - _unitIcon.Size.Width / 2, center.Y - _unitIcon.Size.Height / 2, _unitIcon.Size.Width, _unitIcon.Size.Height));
 
             if (unit == _game.SelectedUnit)

@@ -1,0 +1,17 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="100" d:DesignHeight="100"
+             x:Class="Civ2Like.Views.PlayerFlag">
+	<Border BorderBrush="Black" BorderThickness="1.5" CornerRadius="4">
+		<Grid>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="*"/>
+				<RowDefinition Height="*"/>
+			</Grid.RowDefinitions>
+			<Rectangle Fill="{Binding PrimaryBrush}" Grid.Row="0" />
+			<Rectangle Fill="{Binding SecondaryBrush}" Grid.Row="1" />
+		</Grid>
+	</Border>
+</UserControl>

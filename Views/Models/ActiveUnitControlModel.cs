@@ -1,6 +1,8 @@
 ﻿using Avalonia.Media;
 using Civ2Like.Hexagon;
 using Civ2Like.View.Views.Events;
+using Civ2Like.Views.Events;
+using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 
 namespace Civ2Like.Views.Models;
@@ -70,10 +72,36 @@ internal class ActiveUnitControlModel
     }
 
     private SolidColorBrush? _colorB;
+    
     public SolidColorBrush? ColorB
     {
         get => _colorB;
         set => SetProperty(ref _colorB, value);
+    }
+
+    private RelayCommand? _centerOnUnitCommand;
+    public RelayCommand CenterOnUnitCommand
+    {
+        get
+        {
+            return _centerOnUnitCommand ??= new RelayCommand(CenterOnUnit);
+        }
+    }
+
+    public bool IsAutoCenterOnUnit { get; set; }
+
+    private bool _isSelected;
+    public bool IsSelected
+    {
+        get => _isSelected;
+        set => SetProperty(ref _isSelected, value);
+    }
+    private void CenterOnUnit()
+    {
+        if (UnitId is not null)
+        {
+            WeakReferenceMessenger.Default.Send(new CenterOnUnitEvent() { UnitId = UnitId.Value });
+        }
     }
 
     public void Receive(UnitSelectionChangedEvent message)
@@ -86,6 +114,8 @@ internal class ActiveUnitControlModel
         MovesLeft = message.MovesLeft;
         Icon = message.Icon;
 
+        IsSelected = message.IsSelected;
+
         if (message.IsSelected)
         {
             ColorA = new SolidColorBrush(message.Player!.ColorA);
@@ -95,6 +125,11 @@ internal class ActiveUnitControlModel
         {
             ColorA = new SolidColorBrush(Colors.Black);
             ColorB = ColorA;
+        }
+
+        if (IsAutoCenterOnUnit && message.IsSelected)
+        {
+            CenterOnUnit();
         }
     }
 }

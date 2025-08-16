@@ -18,7 +18,7 @@ using System.Threading.Tasks.Dataflow;
 
 namespace Civ2Like.Views;
 
-public sealed class GameView : Control
+public sealed partial class GameView : Control, IDisposable
 {
     private readonly Game _game;
     private readonly Typeface _typeface = new("Segoe UI", weight: FontWeight.Bold);
@@ -69,6 +69,13 @@ public sealed class GameView : Control
         Height = GameConfig.Height * _sizeY * 1.5 + _pad + _origin.Y;
         HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left;
         VerticalAlignment = Avalonia.Layout.VerticalAlignment.Top;
+
+        WeakReferenceMessenger.Default.Register(this);
+    }
+
+    public void Dispose()
+    {
+        WeakReferenceMessenger.Default.UnregisterAll(this);
     }
 
     private void LoadUnitsGraphics()
@@ -324,9 +331,9 @@ public sealed class GameView : Control
         }
     }
 
-    private void DrawHoveredHex(DrawingContext ctx, Hex sh)
+    private void DrawHoveredHex(DrawingContext ctx, Hex sh, double thickness, double fillOpacity)
     {
-        DrawHexAt(ctx, sh, fill: null, outline: Brushes.White, thickness: 2, dashed: true);
+        DrawHexAt(ctx, sh, fill: new SolidColorBrush(Colors.White, fillOpacity), outline: Brushes.White, thickness: thickness, dashed: true);
     }
 
     private readonly static Pen PathPenNormal = new Pen(Brushes.White, 2);
@@ -398,13 +405,13 @@ public sealed class GameView : Control
             var screenHex = ScreenHexFromWorld(unit.Pos);
             var center = ToPixelScreen(screenHex);
 
-            DrawFlag(ctx, center, unit.Player);
-            ctx.DrawImage(_unitIcon, new Rect(center.X - _unitIcon.Size.Width / 2, center.Y - _unitIcon.Size.Height / 2, _unitIcon.Size.Width, _unitIcon.Size.Height));
-
             if (unit == _game.SelectedUnit)
             {
-                DrawHoveredHex(ctx, ScreenHexFromWorld(unit.Pos));
+                DrawHoveredHex(ctx, ScreenHexFromWorld(unit.Pos), 4.0, 0.8);
             }
+
+            DrawFlag(ctx, center, unit.Player);
+            ctx.DrawImage(_unitIcon, new Rect(center.X - _unitIcon.Size.Width / 2, center.Y - _unitIcon.Size.Height / 2, _unitIcon.Size.Width, _unitIcon.Size.Height));
         }
     }
 
@@ -473,7 +480,7 @@ public sealed class GameView : Control
 
         if (_hoverScreenHex is Hex sh && _hoverWorldHex is Hex wh)
         {
-            DrawHoveredHex(ctx, sh);
+            DrawHoveredHex(ctx, sh, 2.5, 0.4);
         }
 
         DrawCurrentPath(ctx);

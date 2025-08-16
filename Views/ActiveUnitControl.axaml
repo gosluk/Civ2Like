@@ -5,7 +5,7 @@
 			 xmlns:local="using:Civ2Like.Views"
 			 xmlns:controls="using:Civ2Like.Views"
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
-             x:Class="Civ2Like.Views.ActiveUnitControl">
+             x:Class="Civ2Like.Views.ActiveUnitControl" IsVisible="{Binding IsSelected}">
 	<Grid>
 		<StackPanel Margin="10">
 			<Grid Margin="0,0,0,20">
@@ -43,8 +43,23 @@
 				</WrapPanel>
 				
 			</Grid>
-			<Button Content="Fortify" Width="120" Height="30"/>
-			<Button Content="Disband" Width="120" Height="30"/>
+			<Grid>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="Auto" />
+					<ColumnDefinition Width="*" />
+					<ColumnDefinition Width="*" />
+				</Grid.ColumnDefinitions>
+				<Grid.RowDefinitions>
+					<RowDefinition/>
+					<RowDefinition/>
+					<RowDefinition/>
+				</Grid.RowDefinitions>
+				<Button Content="Fortify" HorizontalAlignment="Stretch" Grid.ColumnSpan="2"/>
+				<Button Content="Disband" HorizontalAlignment="Stretch" Grid.Row="1" Grid.ColumnSpan="2"/>
+				<CheckBox IsChecked="{Binding IsAutoCenterOnUnit}" Grid.Row="2" />
+				<Button Content="Center on Unit" HorizontalAlignment="Stretch" Grid.Row="2" Grid.Column="1"
+						Command="{Binding CenterOnUnitCommand}"/>
+			</Grid>
 		</StackPanel>
 	</Grid>
 </UserControl>

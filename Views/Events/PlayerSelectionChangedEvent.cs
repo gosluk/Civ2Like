@@ -1,7 +1,8 @@
 ﻿using Civ2Like.Core;
 
 namespace Civ2Like.Views.Events;
-public class PlayerSelectionChangedEvent
+
+public sealed class PlayerSelectionChangedEvent
 {
     public PlayerSelectionChangedEvent(Game game, Player player)
     {

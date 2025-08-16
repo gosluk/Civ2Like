@@ -30,6 +30,8 @@ public sealed class Game
 
     public UnitNameGenerator UnitNameGenerator { get; } = new();
 
+    public FactionNameGenerator FactionNameGenerator { get; } = new();
+
     public uint Turn        { get; internal set; } = 1;
     
     public int ActiveIndex { get; internal set; } = 0;
@@ -54,8 +56,8 @@ public sealed class Game
         left  = FindNearestLandAlongRow(left, +1);
         right = FindNearestLandAlongRow(right, -1);
 
-        RandomizePlayer("Reds");
-        RandomizePlayer("Whites");
+        RandomizePlayer(FactionNameGenerator.Next());
+        RandomizePlayer(FactionNameGenerator.Next());
 
         Players.ForEach(RandomizeStart);
 

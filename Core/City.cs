@@ -5,7 +5,7 @@ using Civ2Like.View.Core.Interfaces;
 
 namespace Civ2Like.Core;
 
-public sealed class City : IIdObject
+public sealed class City : IIdObject, IEquatable<City>
 {
     public Guid Id { get; } = Guid.NewGuid();
 
@@ -46,4 +46,10 @@ public sealed class City : IIdObject
             CityId = Id,
         };
     }
+
+    public bool Equals(City? other) => Id.Equals(other?.Id);
+
+    public override int GetHashCode() => Id.GetHashCode();
+
+    public override bool Equals(object? obj) => obj is Unit other && Equals(other);
 }

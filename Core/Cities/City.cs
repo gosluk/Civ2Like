@@ -1,9 +1,10 @@
+using Civ2Like.Core.Players;
 using Civ2Like.Core.Units;
 using Civ2Like.Events;
 using Civ2Like.Events.Items;
 using Civ2Like.Hexagon;
 
-namespace Civ2Like.Core;
+namespace Civ2Like.Core.Cities;
 
 public sealed class City : UuidObject, IEquatable<City>
 {

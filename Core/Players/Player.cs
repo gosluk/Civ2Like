@@ -1,6 +1,6 @@
 using Avalonia.Media;
 
-namespace Civ2Like.Core;
+namespace Civ2Like.Core.Players;
 
 public sealed class Player : UuidObject, IEquatable<Player>
 {

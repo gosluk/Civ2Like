@@ -1,4 +1,5 @@
 using Civ2Like.Core;
+using Civ2Like.Core.Cities;
 
 namespace Civ2Like.Events.Items;
 

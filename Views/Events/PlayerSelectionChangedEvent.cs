@@ -1,4 +1,5 @@
 ﻿using Civ2Like.Core;
+using Civ2Like.Core.Players;
 
 namespace Civ2Like.Views.Events;
 

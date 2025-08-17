@@ -1,5 +1,7 @@
 using Avalonia.Media;
+using Civ2Like.Core.Cities;
 using Civ2Like.Core.NameGeneration;
+using Civ2Like.Core.Players;
 using Civ2Like.Core.Units;
 using Civ2Like.Events;
 using Civ2Like.Events.Items;

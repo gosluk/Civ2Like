@@ -34,7 +34,9 @@ public sealed class Game
 
     public ListIdObjects<City>   Cities  { get; } = new();
 
-    
+    public ListIdObjects<UnitType> UnitTypes { get; } = new();
+
+
     public CityNameGenerator CityNameGenerator { get; } = new();
 
     public UnitNameGenerator UnitNameGenerator { get; } = new();
@@ -68,9 +70,28 @@ public sealed class Game
         RandomizePlayer(FactionNameGenerator.Next());
         RandomizePlayer(FactionNameGenerator.Next());
 
+        InitializeUnitTypes();
+
         Players.ForEach(RandomizeStart);
 
         Events.Process(this, new GameStartedEvent { Width = width, Height = height, Seed = seed });
+    }
+
+    private void InitializeUnitTypes()
+    {
+        UnitTypes.Add(new UnitType()
+        {
+            MaxHealth = 100,
+            MoveAllowance = 2,
+            Rules = MovementRules.LandOnly(),
+            TileVisibility = 1,
+            Name = "Warrior",
+            AttackRange = 1,
+            AttackRanged = 0,
+            AttackMelee = 5,
+            DefenseRanged = 0,
+            DefenseMelee = 5,
+        });
     }
 
     private void RandomizePlayer(string name)
@@ -97,7 +118,7 @@ public sealed class Game
             throw new NotImplementedException("Can not find start location for player " + player.Name);
         }
 
-        var unit = new Unit(player, start, MovementPreset.Land)
+        var unit = new Unit(player, start, UnitTypes.First())
         {
             Name = UnitNameGenerator.Next(),
         };
@@ -183,7 +204,7 @@ public sealed class Game
         return path;
     }
 
-    public IReadOnlyList<Hex> FindPath(Hex start, Hex goal) => SelectedUnit is null ? [] : FindPath(start, goal, SelectedUnit.Rules);
+    public IReadOnlyList<Hex> FindPath(Hex start, Hex goal) => SelectedUnit is null ? [] : FindPath(start, goal, SelectedUnit.UnitType.Rules);
 
     public void FollowPath(IReadOnlyList<Hex> path, MovementRules rules)
     {
@@ -210,14 +231,14 @@ public sealed class Game
             var from = SelectedUnit.Pos;
             var to = step;
             SelectedUnit.Pos = to;
-            SelectedUnit.MovesLeft -= cost;
+            SelectedUnit.MovesLeft -= (uint)cost;
 
             Events.Process(this, new UnitStateChangedEvent() { UnitId = SelectedUnit.Id, NewState = UnitState.Ready });
             Events.Process(this, new UnitMovedEvent { UnitId = SelectedUnit.Id, FromQ = from.Q, FromR = from.R, ToQ = to.Q, ToR = to.R });
         }
     }
 
-    public void FollowPath(IReadOnlyList<Hex> path) => FollowPath(path, SelectedUnit?.Rules ?? MovementRules.LandOnly());
+    public void FollowPath(IReadOnlyList<Hex> path) => FollowPath(path, SelectedUnit?.UnitType.Rules ?? MovementRules.LandOnly());
 
     public bool TryFoundCity()
     {
@@ -279,7 +300,7 @@ public sealed class Game
         {
             if (u.Player == ActivePlayer)
             {
-                u.MovesLeft = u.MoveAllowance;
+                u.MovesLeft = u.UnitType.MoveAllowance;
             }
         }
 

@@ -25,21 +25,21 @@
 					<controls:PlayerFlag PrimaryBrush="{Binding ColorA}" SecondaryBrush="{Binding ColorB}"
 										 Margin="3"
 										 Height="32" Width="32"/>
-					<TextBlock Text="{Binding PlayerName}" FontSize="14" Grid.Column="1" VerticalAlignment="Center"/>
+					<TextBlock Text="{Binding PlayerName}" TextWrapping="Wrap" Grid.Column="1" VerticalAlignment="Center"/>
 				</WrapPanel>
 				
 
 				<TextBlock Text="Gold:" Margin="3,0" Grid.Column="0" Grid.Row="1"/>
-				<TextBlock Text="{Binding Gold}" FontSize="14" Grid.Column="1" Grid.Row="1"/>
+				<TextBlock Text="{Binding Gold}" Grid.Column="1" Grid.Row="1"/>
 
 				<TextBlock Text="Binding No. of Units:" Margin="3,0" Grid.Column="0" Grid.Row="2"/>
-				<TextBlock Text="{Binding NumberOfUnits}" FontSize="14" Grid.Column="1" Grid.Row="2"/>
+				<TextBlock Text="{Binding NumberOfUnits}" Grid.Column="1" Grid.Row="2"/>
 
 				<TextBlock Text="Binding No. of Cities:" Margin="3,0" Grid.Column="0" Grid.Row="3"/>
-				<TextBlock Text="{Binding NumberOfCities}" FontSize="14" Grid.Column="1" Grid.Row="3"/>
+				<TextBlock Text="{Binding NumberOfCities}" Grid.Column="1" Grid.Row="3"/>
 
 				<TextBlock Text="Turn:" Margin="3,0" Grid.Column="0" Grid.Row="4"/>
-				<TextBlock Text="{Binding Turn}" FontSize="14" Grid.Column="1" Grid.Row="4"/>
+				<TextBlock Text="{Binding Turn}" Grid.Column="1" Grid.Row="4"/>
 
 			</Grid>
 		</StackPanel>

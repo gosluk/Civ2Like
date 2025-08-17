@@ -23,19 +23,34 @@
 					<RowDefinition Height="Auto" />
 					<RowDefinition Height="Auto" />
 					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
 				</Grid.RowDefinitions>
 
-				<TextBlock Text="Unit:" Margin="3,0" FontSize="14" FontWeight="Bold" Grid.Column="0"/>
-				<TextBlock Text="{Binding UnitName}" FontSize="14" Grid.Column="1"/>
+				<TextBlock Text="Unit:" Margin="3,0" FontWeight="Bold" Grid.Column="0"/>
+				<TextBlock Text="{Binding UnitName}" Grid.Column="1"/>
 
 				<TextBlock Text="Player:" Margin="3,0" Grid.Column="0" Grid.Row="1"/>
-				<TextBlock Text="{Binding PlayerName}" FontSize="14" Grid.Column="1" Grid.Row="1"/>
+				<TextBlock Text="{Binding PlayerName}" TextWrapping="Wrap" Grid.Column="1" Grid.Row="1"/>
 
 				<TextBlock Text="Positon:" Margin="3,0" Grid.Column="0" Grid.Row="2"/>
-				<TextBlock Text="{Binding Pos}" FontSize="14" Grid.Column="1" Grid.Row="2"/>
+				<TextBlock Text="{Binding Pos}" Grid.Column="1" Grid.Row="2"/>
 
 				<TextBlock Text="Moves:" Margin="3,0" Grid.Column="0" Grid.Row="3"/>
-				<TextBlock Text="{Binding MovesLeft}" FontSize="14" Grid.Column="1" Grid.Row="3"/>
+				<TextBlock Grid.Column="1" Grid.Row="3">
+					<TextBlock.Text>
+						<MultiBinding StringFormat="{}{0}/{1}">
+							<Binding Path="MovesLeft"/>
+							<Binding Path="MovesLeftEvaluated"/>
+						</MultiBinding>
+					</TextBlock.Text>
+				</TextBlock>
 
 				<TextBlock Text="Icon:" Margin="3,0" Grid.Column="0" Grid.Row="4"/>
 				<WrapPanel Grid.Column="1" Grid.Row="4">
@@ -46,10 +61,92 @@
 				</WrapPanel>
 
 				<TextBlock Text="State:" Margin="3,0" Grid.Column="0" Grid.Row="5"/>
-				<TextBlock Text="{Binding State}" FontSize="14" Grid.Column="1" Grid.Row="5"/>
+				<TextBlock Text="{Binding State}" Grid.Column="1" Grid.Row="5"/>
 
 				<TextBlock Text="Health:" Margin="3,0" Grid.Column="0" Grid.Row="6"/>
-				<TextBlock Text="{Binding Health}" FontSize="14" Grid.Column="1" Grid.Row="6"/>
+				<TextBlock Grid.Column="1" Grid.Row="6">
+					<TextBlock.Text>
+						<MultiBinding StringFormat="{}{0}/{1}">
+							<Binding Path="Health"/>
+							<Binding Path="MaxHealth"/>
+						</MultiBinding>
+					</TextBlock.Text>
+				</TextBlock>
+
+				<!-- Detailed stats -->
+				
+				<TextBlock Text="Unit Type:" Margin="3,0" Grid.Column="0" Grid.Row="7"/>
+				<TextBlock Text="{Binding UnitTypeName}" Grid.Column="1" Grid.Row="7"/>
+
+				<TextBlock Text="Move Allowance:" Margin="3,0" Grid.Column="0" Grid.Row="8"/>
+				<TextBlock Grid.Column="1" Grid.Row="8">
+					<TextBlock.Text>
+						<MultiBinding StringFormat="{}{0} ({1})">
+							<Binding Path="MoveAllowance"/>
+							<Binding Path="BonusMoveAllowance"/>
+						</MultiBinding>
+					</TextBlock.Text>
+				</TextBlock>
+
+				<TextBlock Text="Tile Visibility:" Margin="3,0" Grid.Column="0" Grid.Row="9"/>
+				<TextBlock Grid.Column="1" Grid.Row="9">
+					<TextBlock.Text>
+						<MultiBinding StringFormat="{}{0} ({1})">
+							<Binding Path="TileVisibility"/>
+							<Binding Path="BonusTileVisibility"/>
+						</MultiBinding>
+					</TextBlock.Text>
+				</TextBlock>
+
+				<TextBlock Text="Attack Range:" Margin="3,0" Grid.Column="0" Grid.Row="10"/>
+				<TextBlock Grid.Column="1" Grid.Row="10">
+					<TextBlock.Text>
+						<MultiBinding StringFormat="{}{0} ({1})">
+							<Binding Path="AttackRange"/>
+							<Binding Path="BonusAttackRange"/>
+						</MultiBinding>
+					</TextBlock.Text>
+				</TextBlock>
+
+				<TextBlock Text="Attack Ranged:" Margin="3,0" Grid.Column="0" Grid.Row="11"/>
+				<TextBlock Grid.Column="1" Grid.Row="11">
+					<TextBlock.Text>
+						<MultiBinding StringFormat="{}{0} ({1})">
+							<Binding Path="AttackRanged"/>
+							<Binding Path="BonusAttackRanged"/>
+						</MultiBinding>
+					</TextBlock.Text>
+				</TextBlock>
+
+				<TextBlock Text="Attack Melee:" Margin="3,0" Grid.Column="0" Grid.Row="12"/>
+				<TextBlock Grid.Column="1" Grid.Row="12">
+					<TextBlock.Text>
+						<MultiBinding StringFormat="{}{0} ({1})">
+							<Binding Path="AttackMelee"/>
+							<Binding Path="BonusAttackMelee"/>
+						</MultiBinding>
+					</TextBlock.Text>
+				</TextBlock>
+
+				<TextBlock Text="Defense Ranged:" Margin="3,0" Grid.Column="0" Grid.Row="13"/>
+				<TextBlock Grid.Column="1" Grid.Row="13">
+					<TextBlock.Text>
+						<MultiBinding StringFormat="{}{0} ({1})">
+							<Binding Path="DefenseRanged"/>
+							<Binding Path="BonusDefenseRanged"/>
+						</MultiBinding>
+					</TextBlock.Text>
+				</TextBlock>
+
+				<TextBlock Text="Defense Melee:" Margin="3,0" Grid.Column="0" Grid.Row="14"/>
+				<TextBlock Grid.Column="1" Grid.Row="14">
+					<TextBlock.Text>
+						<MultiBinding StringFormat="{}{0} ({1})">
+							<Binding Path="DefenseMelee"/>
+							<Binding Path="BonusDefenseMelee"/>
+						</MultiBinding>
+					</TextBlock.Text>
+				</TextBlock>
 				
 			</Grid>
 			<Grid>

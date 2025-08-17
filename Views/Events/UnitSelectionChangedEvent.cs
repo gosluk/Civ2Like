@@ -1,7 +1,6 @@
 ﻿using Avalonia.Media;
 using Civ2Like.Core;
 using Civ2Like.Core.Units;
-using Civ2Like.Events;
 using Civ2Like.Hexagon;
 
 namespace Civ2Like.View.Views.Events;
@@ -24,6 +23,8 @@ public sealed class UnitSelectionChangedEvent
         IsSelected = true;
         State = unit.State;
         Health = unit.Health;
+        UnitType = unit.UnitType;
+        Bonuses = unit.Bonuses.Count > 0 ? unit.Bonuses.Aggregate((a, b) => a + b) : null;
     }
 
     public Guid? UnitId { get; }
@@ -34,13 +35,17 @@ public sealed class UnitSelectionChangedEvent
 
     public Hex? Pos { get; }
 
-    public int? MovesLeft { get; }
+    public uint? MovesLeft { get; }
 
     public IImage? Icon { get; }
 
     public UnitState? State { get; }
 
     public uint Health { get; }
+
+    public UnitType? UnitType { get; }
+
+    public UnitBonus? Bonuses { get; }
 
     public bool IsSelected { get; }
 }

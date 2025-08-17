@@ -17,7 +17,12 @@ public sealed class CityProductionProgressedEvent : IGameEvent
         else
         {
             city.SetProduction();
-            game.ProcessEvent(new UnitCreatedEvent { Pos = city.Pos, PlayerId = city.Player.Id });
+            game.ProcessEvent(new UnitCreatedEvent
+            {
+                Pos = city.Pos,
+                PlayerId = city.Player.Id,
+                UnitTypeId = game.UnitTypes.First().Id
+            });
         }
     }
 }

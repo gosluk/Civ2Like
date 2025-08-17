@@ -18,7 +18,7 @@ public sealed class TurnEndedEvent : IGameEvent
         {
             if (u.Player == game.ActivePlayer)
             {
-                u.MovesLeft = u.MoveAllowance;
+                u.MovesLeft = u.UnitType.MoveAllowance;
             }
         }
 

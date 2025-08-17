@@ -4,31 +4,42 @@ namespace Civ2Like.Core.Units;
 
 public sealed class Unit : UuidObject, IEquatable<Unit>
 {
-    public string Name { get; set; } = "Unit";
+    public required string Name { get; set; }
 
     public Player Player { get; }
 
     public Hex Pos { get; set; }
 
-    public int MoveAllowance { get; } = 2;
-
-    public int MovesLeft { get; set; }
-
-    public MovementRules Rules { get; }
+    public uint MovesLeft { get; set; }
 
     public UnitState State { get; set; }
 
+    public UnitType UnitType { get; set; }
+
     public uint Health { get; set; } = 100;
 
-    public Unit(Player owner, Hex pos, MovementRules? rules = null)
+    public uint Kills { get; set; } = 0;
+
+    public List<UnitBonus> Bonuses { get; } = new();
+
+    public Unit(Player owner, Hex pos, UnitType unitType)
     {
         Player = owner;
         Pos = pos;
-        Rules = rules ?? MovementRules.LandOnly();
-        MovesLeft = MoveAllowance;
+        UnitType = unitType;
     }
 
-    public Unit(Player owner, Hex pos, MovementPreset preset) : this(owner, pos, MovementRules.FromPreset(preset)) { }
-
     public bool Equals(Unit? other) => Id.Equals(other?.Id);
+
+    public UnitBonus EffectiveStats()
+    {
+        var effectiveStats = UnitType + new UnitBonus();
+
+        foreach (var bonus in Bonuses)
+        {
+            effectiveStats += bonus;
+        }
+
+        return effectiveStats;
+    }
 }

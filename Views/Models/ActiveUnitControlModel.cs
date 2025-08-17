@@ -51,11 +51,18 @@ internal class ActiveUnitControlModel
         set => SetProperty(ref _pos, value);
     }
 
-    private int? _movesLeft;
-    public int? MovesLeft
+    private uint? _movesLeft;
+    public uint? MovesLeft
     {
         get => _movesLeft;
         set => SetProperty(ref _movesLeft, value);
+    }
+
+    private uint? _movesLeftEvaluated;
+    public uint? MovesLeftEvaluated
+    {
+        get => _movesLeftEvaluated;
+        set => SetProperty(ref _movesLeftEvaluated, value);
     }
 
     private IImage? _icon;
@@ -120,6 +127,125 @@ internal class ActiveUnitControlModel
         }
     }
 
+    private string? _unitTypeName;
+    public string? UnitTypeName
+    {
+        get => _unitTypeName;
+        set => SetProperty(ref _unitTypeName, value);
+    }
+
+    private uint? _maxHealth;
+    public uint? MaxHealth
+    {
+        get => _maxHealth;
+        set => SetProperty(ref _maxHealth, value);
+    }
+
+    private uint? _moveAllowance;
+    public uint? MoveAllowance
+    {
+        get => _moveAllowance;
+        set => SetProperty(ref _moveAllowance, value);
+    }
+
+    private uint? _tileVisibility;
+    public uint? TileVisibility
+    {
+        get => _tileVisibility;
+        set => SetProperty(ref _tileVisibility, value);
+    }
+
+    private uint? _attackRange;
+    public uint? AttackRange
+    {
+        get => _attackRange;
+        set => SetProperty(ref _attackRange, value);
+    }
+
+    private uint? _attackRanged;
+    public uint? AttackRanged
+    {
+        get => _attackRanged;
+        set => SetProperty(ref _attackRanged, value);
+    }
+
+    private uint? _attackMelee;
+    public uint? AttackMelee
+    {
+        get => _attackMelee;
+        set => SetProperty(ref _attackMelee, value);
+    }
+
+    private uint? _defenseRanged;
+    public uint? DefenseRanged
+    {
+        get => _defenseRanged;
+        set => SetProperty(ref _defenseRanged, value);
+    }
+
+    private uint? _defenseMelee;
+    public uint? DefenseMelee
+    {
+        get => _defenseMelee;
+        set => SetProperty(ref _defenseMelee, value);
+    }
+
+    private uint? _bonusMaxHealth;
+    public uint? BonusMaxHealth
+    {
+        get => _bonusMaxHealth;
+        set => SetProperty(ref _bonusMaxHealth, value);
+    }
+
+    private uint? _bonusMoveAllowance;
+    public uint? BonusMoveAllowance
+    {
+        get => _bonusMoveAllowance;
+        set => SetProperty(ref _bonusMoveAllowance, value);
+    }
+
+    private uint? _bonusTileVisibility;
+    public uint? BonusTileVisibility
+    {
+        get => _bonusTileVisibility;
+        set => SetProperty(ref _bonusTileVisibility, value);
+    }
+
+    private uint? _bonusAttackRange;
+    public uint? BonusAttackRange
+    {
+        get => _bonusAttackRange;
+        set => SetProperty(ref _bonusAttackRange, value);
+    }
+
+    private uint? _bonusAttackRanged;
+    public uint? BonusAttackRanged
+    {
+        get => _bonusAttackRanged;
+        set => SetProperty(ref _bonusAttackRanged, value);
+    }
+
+    private uint? _bonusAttackMelee;
+    public uint? BonusAttackMelee
+    {
+        get => _bonusAttackMelee;
+        set => SetProperty(ref _bonusAttackMelee, value);
+    }
+
+    private uint? _bonusDefenseRanged;
+    public uint? BonusDefenseRanged
+    {
+        get => _bonusDefenseRanged;
+        set => SetProperty(ref _bonusDefenseRanged, value);
+    }
+
+    private uint? _bonusDefenseMelee;
+    public uint? BonusDefenseMelee
+    {
+        get => _bonusDefenseMelee;
+        set => SetProperty(ref _bonusDefenseMelee, value);
+    }
+
     public void Receive(UnitSelectionChangedEvent message)
     {
         UnitId = message.UnitId;
@@ -144,6 +270,27 @@ internal class ActiveUnitControlModel
             ColorA = new SolidColorBrush(Colors.Black);
             ColorB = ColorA;
         }
+
+        UnitTypeName = message.UnitType?.Name;
+        MaxHealth = message.UnitType?.MaxHealth;
+        MoveAllowance = message.UnitType?.MoveAllowance;
+        TileVisibility = message.UnitType?.TileVisibility;
+        AttackRange = message.UnitType?.AttackRange;
+        AttackRanged = message.UnitType?.AttackRanged;
+        AttackMelee = message.UnitType?.AttackMelee;
+        DefenseRanged = message.UnitType?.DefenseRanged;
+        DefenseMelee = message.UnitType?.DefenseMelee;
+
+        BonusMaxHealth = message.Bonuses?.MaxHealth ?? 0;
+        BonusMoveAllowance = message.Bonuses?.MoveAllowance ?? 0;
+        BonusTileVisibility = message.Bonuses?.TileVisibility ?? 0;
+        BonusAttackRange = message.Bonuses?.AttackRange ?? 0;
+        BonusAttackRanged = message.Bonuses?.AttackRanged ?? 0;
+        BonusAttackMelee = message.Bonuses?.AttackMelee ?? 0;
+        BonusDefenseRanged = message.Bonuses?.DefenseRanged ?? 0;
+        BonusDefenseMelee = message.Bonuses?.DefenseMelee ?? 0;
+
+         MovesLeftEvaluated = message.UnitType?.MoveAllowance + (message.Bonuses?.MoveAllowance ?? 0);
 
         if (IsAutoCenterOnUnit && message.IsSelected)
         {

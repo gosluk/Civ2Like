@@ -41,5 +41,8 @@ public sealed class MovementRules
     }
 
     public static MovementRules LandOnly() => FromPreset(MovementPreset.Land);
+
+    public static MovementRules NavalOnly() => FromPreset(MovementPreset.Naval);
+
     public static MovementRules Amphibious() => new MovementRules();
 }

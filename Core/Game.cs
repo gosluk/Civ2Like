@@ -81,16 +81,72 @@ public sealed class Game
     {
         UnitTypes.Add(new UnitType()
         {
-            MaxHealth = 100,
+            MaxHealth = 10,
             MoveAllowance = 2,
             Rules = MovementRules.LandOnly(),
             TileVisibility = 1,
-            Name = "Warrior",
-            AttackRange = 1,
+            Name = "Solider",
+            AttackRange = 0,
             AttackRanged = 0,
-            AttackMelee = 5,
-            DefenseRanged = 0,
-            DefenseMelee = 5,
+            AttackMelee = 1,
+            DefenseRanged = 1,
+            DefenseMelee = 1,
+        });
+
+        UnitTypes.Add(new UnitType()
+        {
+            MaxHealth = 5,
+            MoveAllowance = 2,
+            Rules = MovementRules.LandOnly(),
+            TileVisibility = 1,
+            Name = "Settler",
+            AttackRange = 0,
+            AttackRanged = 0,
+            AttackMelee = 0,
+            DefenseRanged = 1,
+            DefenseMelee = 1,
+        });
+
+        UnitTypes.Add(new UnitType()
+        {
+            MaxHealth = 10,
+            MoveAllowance = 3,
+            Rules = MovementRules.LandOnly(),
+            TileVisibility = 1,
+            Name = "Runner",
+            AttackRange = 0,
+            AttackRanged = 0,
+            AttackMelee = 2,
+            DefenseRanged = 1,
+            DefenseMelee = 2,
+        });
+
+        UnitTypes.Add(new UnitType()
+        {
+            MaxHealth = 10,
+            MoveAllowance = 1,
+            Rules = MovementRules.LandOnly(),
+            TileVisibility = 1,
+            Name = "Defender",
+            AttackRange = 1,
+            AttackRanged = 2,
+            AttackMelee = 2,
+            DefenseRanged = 1,
+            DefenseMelee = 2,
+        });
+
+        UnitTypes.Add(new UnitType()
+        {
+            MaxHealth = 10,
+            MoveAllowance = 1,
+            Rules = MovementRules.NavalOnly(),
+            TileVisibility = 1,
+            Name = "Ship",
+            AttackRange = 1,
+            AttackRanged = 2,
+            AttackMelee = 2,
+            DefenseRanged = 1,
+            DefenseMelee = 2,
         });
     }
 

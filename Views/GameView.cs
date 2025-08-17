@@ -1,22 +1,17 @@
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Input;
 using Avalonia.Media;
-using Avalonia.Media.Imaging;
 using Avalonia.Media.Immutable;
 using Avalonia.Media.TextFormatting;
-using Avalonia.Platform;
 using Avalonia.Threading;
 using Civ2Like.Config;
 using Civ2Like.Core;
 using Civ2Like.Core.Players;
 using Civ2Like.Core.Units;
-using Civ2Like.Events.Items;
 using Civ2Like.Hexagon;
 using Civ2Like.View.Views.Events;
 using Civ2Like.Views.Events;
 using CommunityToolkit.Mvvm.Messaging;
-using System.Collections.Immutable;
 using System.Threading.Tasks.Dataflow;
 
 namespace Civ2Like.Views;
@@ -37,9 +32,6 @@ public sealed partial class GameView : Control, IDisposable
 
     private int _viewColOffset = 0;
     private int _viewRowOffset = 0;
-
-    private IImage _unitIcon;
-    private IImage _cityIcon;
 
     public GameView()
     {
@@ -81,78 +73,6 @@ public sealed partial class GameView : Control, IDisposable
     {
         WeakReferenceMessenger.Default.UnregisterAll(this);
     }
-
-    private void LoadUnitsGraphics()
-    {
-        using var stream = AssetLoader.Open(new Uri("avares://Civ2Like/Resources/Units/Unit.png"));
-        _unitIcon = new Bitmap(stream);
-    }
-
-    private void LoadCitiesGraphics()
-    {
-        using var stream = AssetLoader.Open(new Uri("avares://Civ2Like/Resources/Board/City.png"));
-        _cityIcon = new Bitmap(stream);
-    }
-
-    private void LoadTerrain()
-    {
-        Dictionary<Terrain, TerrainData> data = new();
-
-        void AddBrush(Terrain t, IBrush brush)
-        {
-            data[t] = new TerrainData
-            {
-                Brush = brush,
-                Image = null
-            };
-        }
-
-        void AddImage(Terrain t, IBrush brush, string path)
-        {
-            var stream = AssetLoader.Open(new Uri($"avares://Civ2Like/Resources/Terrain/{path}"));
-            var bmp = new Bitmap(stream);
-            data[t] = new TerrainData
-            {
-                Brush = new ImageBrush(bmp)
-                {
-                    Stretch = Stretch.UniformToFill,
-                    AlignmentX = AlignmentX.Center,
-                    AlignmentY = AlignmentY.Center,
-                    TileMode = TileMode.Tile,
-                    DestinationRect = new RelativeRect(new Rect(0, 0, 1.01, 1.0), RelativeUnit.Relative),
-                    SourceRect = new RelativeRect(new Rect(0, 0, bmp.Size.Width, bmp.Size.Height), RelativeUnit.Absolute),
-                },
-                Image = bmp
-            };
-        }
-
-        //AddImage(Terrain.Grassland, new SolidColorBrush(Color.FromArgb(255, 80, 160, 80)), "Savanna.png");
-        //AddImage(Terrain.Plains, new SolidColorBrush(Color.FromArgb(255, 170, 170, 90)), "Plains.png");
-
-        AddBrush(Terrain.Grassland, new SolidColorBrush(Color.FromArgb(255, 80, 160, 80)));
-        AddBrush(Terrain.Plains, new SolidColorBrush(Color.FromArgb(255, 170, 170, 90)));
-
-        AddBrush(Terrain.Ocean, new SolidColorBrush(Color.FromArgb(255, 50, 90, 180)));
-        AddBrush(Terrain.Coast, new SolidColorBrush(Color.FromArgb(255, 80, 130, 210)));
-        AddBrush(Terrain.Forest, new SolidColorBrush(Color.FromArgb(255, 40, 120, 40)));
-        AddBrush(Terrain.Hills, new SolidColorBrush(Color.FromArgb(255, 130, 110, 80)));
-        AddBrush(Terrain.Mountains, new SolidColorBrush(Color.FromArgb(255, 110, 100, 110)));
-        AddBrush(Terrain.Desert, new SolidColorBrush(Color.FromArgb(255, 220, 200, 120)));
-        AddBrush(Terrain.Tundra, new SolidColorBrush(Color.FromArgb(255, 200, 220, 240)));
-
-        TerrainBrushes = data.ToImmutableDictionary();
-    }
-
-    private sealed class TerrainData
-    {
-        public IBrush Brush { get; init; }
-
-        public IImage? Image { get; init; }
-    }
-
-    private static ImmutableDictionary<Terrain, TerrainData> TerrainBrushes;
-
-    private static IBrush TerrainBrush(Terrain t) => TerrainBrushes[t].Brush;
 
     private static int Mod(int a, int m) { int r = a % m; return r < 0 ? r + m : r; }
 
@@ -201,17 +121,6 @@ public sealed partial class GameView : Control, IDisposable
         return WorldHexAtScreen(Mod(sc, GameConfig.Width), Mod(sr, GameConfig.Height));
     }
 
-    private void OnPointerMoved(object? sender, PointerEventArgs e)
-    {
-        var p = e.GetPosition(this);
-        var world = PixelToWorldHex(p);
-        var screen = ScreenHexFromWorld(world);
-        _hoverWorldHex = world;
-        _hoverScreenHex = screen;
-
-        _hoverNotifier.Post(string.Empty);
-    }
-
     private void SelectUnit(Unit? unit)
     {
         _game.SelectedUnit = unit;
@@ -230,103 +139,6 @@ public sealed partial class GameView : Control, IDisposable
     private void SelectPlayer(Player player)
     {
         WeakReferenceMessenger.Default.Send(new PlayerSelectionChangedEvent(_game, player));
-    }
-
-    private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
-    {
-        var p = e.GetPosition(this);
-        var world = PixelToWorldHex(p);
-
-        var click = e.GetCurrentPoint(this).Properties;
-
-        if (click.IsLeftButtonPressed)
-        {
-            if (_game.SelectedUnit is null)
-            {
-                var selectedUnit = _game.TrySelectUnitAt(world, true);
-                SelectUnit(selectedUnit);
-            }
-            else
-            {
-                void EvaluatePath() => _currentPath = _game.FindPath(_game.SelectedUnit.Pos, world);
-
-                if (_currentPath is null)
-                {
-                    EvaluatePath();
-                }
-                else
-                {
-                    if (_currentPath.Count > 1 && _currentPath[^1] == world)
-                    {
-                        _game.FollowPath(_currentPath);
-                        WeakReferenceMessenger.Default.Send(new UnitSelectionChangedEvent(_game.SelectedUnit!, _game.SelectedUnit!.Player, _unitIcon));
-                        _currentPath = null;
-                    }
-                    else
-                    {
-                        EvaluatePath();
-                    }
-                }
-            }
-        }
-
-        SelectPlayer(_game.ActivePlayer);
-
-        InvalidateVisual();
-        Focus();
-    }
-
-    private void OnKeyDown(object? sender, KeyEventArgs e)
-    {
-        switch (e.Key)
-        {
-            case Key.Left: _viewColOffset = Mod(_viewColOffset - 1, GameConfig.Width); break;
-            case Key.Right: _viewColOffset = Mod(_viewColOffset + 1, GameConfig.Width); break;
-            case Key.Up: _viewRowOffset = Mod(_viewRowOffset - 2, GameConfig.Height); break;
-            case Key.Down: _viewRowOffset = Mod(_viewRowOffset + 2, GameConfig.Height); break;
-
-            case Key.S:
-                //File.WriteAllText("events.json", _game.Events.ToJson());
-                break;
-
-            case Key.L:
-                if (File.Exists("events.json"))
-                {
-                    var json = File.ReadAllText("events.json");
-                    //_game.Events.LoadFromJson(json);
-                    //_game.Events.Replay(_game, _game.Events.Log);
-                }
-                break;
-
-            case Key.F:
-                if (_game.SelectedUnit is not null)
-                {
-                    _game.ProcessEvent(new UnitStateChangedEvent() { UnitId = _game.SelectedUnit.Id, NewState = UnitState.Fortified });
-                    WeakReferenceMessenger.Default.Send(new UnitSelectionChangedEvent(_game.SelectedUnit, _game.SelectedUnit.Player, _unitIcon));
-                }
-                break;
-
-            case Key.C:
-                _game.TryFoundCity();
-                break;
-            case Key.Space:
-                _game.EndTurn();
-                SelectUnit(_game.FindNextUnitToMove());
-                SelectPlayer(_game.ActivePlayer);
-                break;
-            case Key.N:
-                SelectUnit(_game.FindNextUnitToMove());
-                break;
-            case Key.M:
-                if (_currentPath is not null && _game.SelectedUnit is not null)
-                {
-                    _game.FollowPath(_currentPath);
-                }
-                break;
-        }
-
-        SelectPlayer(_game.ActivePlayer);
-        InvalidateVisual();
     }
 
     private void DrawBoard(DrawingContext ctx)

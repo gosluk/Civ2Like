@@ -23,6 +23,10 @@
 		<!-- or just the one file -->
 		<!-- <AvaloniaResource Include="Resources\Terrain\Plains.png" /> -->
 	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Remove="Views\GameView.Initializing.cs" />
+	</ItemGroup>
 	
 	<ItemGroup>
 		<PackageReference Include="Avalonia" Version="11.0.6" />
@@ -42,4 +46,5 @@
 	  <Folder Include="Core\Interfaces\" />
 	  <Folder Include="Resources\Data\" />
 	</ItemGroup>
+	
 </Project>

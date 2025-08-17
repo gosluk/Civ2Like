@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 namespace Civ2Like.Hexagon;
 
 public readonly struct Hex : IEquatable<Hex>
@@ -9,7 +11,7 @@ public readonly struct Hex : IEquatable<Hex>
 
     public int S => -Q - R;
 
-    public static readonly Hex[] NeighborDirs =
+    public static readonly IEnumerable<Hex> NeighborDirs =
     [
         new(+1,0), new(+1,-1), new(0,-1), new(-1,0), new(-1,+1), new(0,+1)
     ];

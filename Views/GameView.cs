@@ -33,6 +33,10 @@ public sealed partial class GameView : Control, IDisposable
     private int _viewColOffset = 0;
     private int _viewRowOffset = 0;
 
+    private bool _attackMode = false;
+    private bool _attackRanged = false;
+    private Unit? _attackHoverUnit; // enemy under cursor when in attack mode
+
     public GameView()
     {
         _game = new Game(GameConfig.Width, GameConfig.Height, GameConfig.Seed);
@@ -75,6 +79,12 @@ public sealed partial class GameView : Control, IDisposable
     }
 
     private static int Mod(int a, int m) { int r = a % m; return r < 0 ? r + m : r; }
+
+    private Unit? GetUnitAt(Hex world)
+    {
+        world = _game.Map.Canonical(world);
+        return _game.Units.FirstOrDefault(u => u.Pos == world);
+    }
 
     private Point ComputeOrigin()
     {
@@ -119,21 +129,6 @@ public sealed partial class GameView : Control, IDisposable
         var approxScreen = HexLayout.PixelToHex(p.X - _origin.X, p.Y - _origin.Y, _sizeX, _sizeY);
         var (sc, sr) = ScreenColRowFromAxial(approxScreen);
         return WorldHexAtScreen(Mod(sc, GameConfig.Width), Mod(sr, GameConfig.Height));
-    }
-
-    private void SelectUnit(Unit? unit)
-    {
-        _game.SelectedUnit = unit;
-
-        if (unit is null)
-        {
-            WeakReferenceMessenger.Default.Send(new UnitSelectionChangedEvent());
-        }
-        else
-        {
-            _currentPath = null;
-            WeakReferenceMessenger.Default.Send(new UnitSelectionChangedEvent(unit, unit.Player, _unitIcon));
-        }
     }
 
     private void SelectPlayer(Player player)

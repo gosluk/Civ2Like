@@ -5,7 +5,7 @@ using CommunityToolkit.Mvvm.Messaging; // if your Unit/UnitState live here
 
 namespace Civ2Like.Events.Items
 {
-    public partial class UnitAttacksUnitEvent
+    public partial class UnitAttacksUnitEvent : IGameEvent
     {
         private Random _rand = new();
 

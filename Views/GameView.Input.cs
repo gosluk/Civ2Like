@@ -18,6 +18,17 @@ public sealed partial class GameView
         _hoverWorldHex = world;
         _hoverScreenHex = screen;
 
+        _attackHoverUnit = null;
+        if (_attackMode)
+        {
+            var unitToAttack = GetUnitAt(world);
+
+            if (unitToAttack is not null && _game.SelectedUnit is not null && unitToAttack.Player != _game.SelectedUnit.Player)
+            {
+                _attackHoverUnit = unitToAttack;
+            }
+        }
+
         _hoverNotifier.Post(string.Empty);
     }
     
@@ -30,7 +41,30 @@ public sealed partial class GameView
 
         if (click.IsLeftButtonPressed)
         {
-            if (_game.SelectedUnit is null)
+            /// If in attack mode the assumption is the unit is already selected
+            /// When no attacking checking if we are selecting a unit
+            if (_attackMode)
+            {
+                var attacker = _game.SelectedUnit;
+                var defender = GetUnitAt(world);
+
+                if (attacker is not null && defender is not null && defender.Player != attacker.Player)
+                {
+                    var evt = new UnitAttacksUnitEvent()
+                    {
+                        AttackerUnitId = attacker.Id,
+                        DefenderUnitId = defender.Id,
+                        IsRanged = _attackRanged
+                    };
+
+                    _game.ProcessEvent(evt);   // Apply via event pipeline
+                    _attackMode = false;                // exit attack mode after a shot/swing
+                    _currentPath = null;                // clear any path preview
+                }
+                // clicked empty tile or friendly: just exit attack mode
+                _attackMode = false;
+            }
+            else if (_game.SelectedUnit is null)
             {
                 var selectedUnit = _game.TrySelectUnitAt(world, true);
                 SelectUnit(selectedUnit);
@@ -57,9 +91,17 @@ public sealed partial class GameView
                     }
                 }
             }
-        }
 
-        SelectPlayer(_game.ActivePlayer);
+            SelectPlayer(_game.ActivePlayer);
+        }
+        else if (click.IsRightButtonPressed)
+        {
+            // Right click: exit attack mode, clear path, deselect unit
+            _attackMode = false;
+            SelectUnit(null);
+
+            Cursor = null;
+        }
 
         InvalidateVisual();
         Focus();
@@ -69,6 +111,7 @@ public sealed partial class GameView
     {
         switch (e.Key)
         {
+            // -- View navigation keys
             case Key.Left: _viewColOffset = Mod(_viewColOffset - 1, GameConfig.Width); break;
             case Key.Right: _viewColOffset = Mod(_viewColOffset + 1, GameConfig.Width); break;
             case Key.Up: _viewRowOffset = Mod(_viewRowOffset - 2, GameConfig.Height); break;
@@ -87,16 +130,15 @@ public sealed partial class GameView
                 }
                 break;
 
+            case Key.C: _game.TryFoundCity(); break;
+
+            // -- Movement & Unit keys
             case Key.F:
                 if (_game.SelectedUnit is not null)
                 {
                     _game.ProcessEvent(new UnitStateChangedEvent() { UnitId = _game.SelectedUnit.Id, NewState = UnitState.Fortified });
                     WeakReferenceMessenger.Default.Send(new UnitSelectionChangedEvent(_game.SelectedUnit, _game.SelectedUnit.Player, _unitIcon));
                 }
-                break;
-
-            case Key.C:
-                _game.TryFoundCity();
                 break;
             case Key.Space:
                 _game.EndTurn();
@@ -112,9 +154,54 @@ public sealed partial class GameView
                     _game.FollowPath(_currentPath);
                 }
                 break;
+
+            // -- Attack mode keys
+            case Key.A: // melee attack
+                if (_game.SelectedUnit is not null)
+                {
+                    _attackMode = true;
+                    _attackRanged = false;
+                    _attackHoverUnit = null;
+                    Cursor = new Cursor(StandardCursorType.Hand);
+                }
+                break;
+
+            case Key.R: // ranged attack
+                if (_game.SelectedUnit is not null && _game.SelectedUnit.EffectiveStats().AttackRange > 0)
+                {
+                    _attackMode = true;
+                    _attackRanged = true;
+                    _attackHoverUnit = null;
+                    Cursor = new Cursor(StandardCursorType.Hand);
+                }
+                break;
+
+            case Key.Escape:
+                if (_attackMode)
+                {
+                    _attackMode = false;
+                    _attackHoverUnit = null;
+                    Cursor = null;
+                }
+                break;
         }
 
         SelectPlayer(_game.ActivePlayer);
         InvalidateVisual();
+    }
+
+    private void SelectUnit(Unit? unit)
+    {
+        _game.SelectedUnit = unit;
+
+        if (unit is null)
+        {
+            WeakReferenceMessenger.Default.Send(new UnitSelectionChangedEvent());
+        }
+        else
+        {
+            _currentPath = null;
+            WeakReferenceMessenger.Default.Send(new UnitSelectionChangedEvent(unit, unit.Player, _unitIcon));
+        }
     }
 }

@@ -26,6 +26,12 @@ public sealed partial class GameView : IRecipient<CenterOnUnitEvent>
         _viewRowOffset = Mod(world.R - centerRow, GameConfig.Height);
         _viewColOffset = Mod(worldCol - centerCol, GameConfig.Width);
 
+        // Shift to avoid anomaly
+        if (_viewRowOffset % 2 == 1)
+        {
+            _viewRowOffset++;
+        }
+
         InvalidateVisual();
     }
 }

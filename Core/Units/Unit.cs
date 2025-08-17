@@ -27,6 +27,7 @@ public sealed class Unit : UuidObject, IEquatable<Unit>
         Player = owner;
         Pos = pos;
         UnitType = unitType;
+        MovesLeft = unitType.MoveAllowance;
     }
 
     public bool Equals(Unit? other) => Id.Equals(other?.Id);

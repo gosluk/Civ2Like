@@ -67,18 +67,7 @@ namespace Civ2Like.Events.Items
                         UnitId = defender.Id,
                         KillerId = attacker.Id
                     });
-                }
 
-                if (attacker.Health <= 0)
-                {
-                    game.ProcessEvent(new UnitKilledEvent()
-                    {
-                        UnitId = attacker.Id,
-                        KillerId = defender.Id
-                    });
-                }
-                else
-                {
                     if (!IsRanged)
                     {
                         // Only melee advances
@@ -92,6 +81,14 @@ namespace Civ2Like.Events.Items
                     }
                 }
 
+                if (attacker.Health <= 0)
+                {
+                    game.ProcessEvent(new UnitKilledEvent()
+                    {
+                        UnitId = attacker.Id,
+                        KillerId = defender.Id
+                    });
+                }
             }
         }
 

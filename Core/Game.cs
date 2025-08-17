@@ -170,7 +170,7 @@ public sealed class Game
     private void RandomizeStart(Player player)
     {
         Terrain[] notAllowed = [Terrain.Ocean, Terrain.Coast, Terrain.Mountains, Terrain.Desert];
-        var start = Map.AllHexes().Where(h => !notAllowed.Contains(Map[h].Terrain)).OrderBy(_ => _rng.Next()).FirstOrDefault();
+        var start = Map.AllHexes().Where(h => !notAllowed.Contains(Map[h].Terrain) && !Units.Select(i => i.Pos).Contains(h)).Skip(60).FirstOrDefault();
         if (start == default)
         {
             throw new NotImplementedException("Can not find start location for player " + player.Name);

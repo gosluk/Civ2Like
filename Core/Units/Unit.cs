@@ -17,7 +17,7 @@ public sealed class Unit : UuidObject, IEquatable<Unit>
 
     public UnitType UnitType { get; set; }
 
-    public uint Health { get; set; } = 100;
+    public uint Health { get; set; }
 
     public uint Kills { get; set; } = 0;
 
@@ -29,6 +29,7 @@ public sealed class Unit : UuidObject, IEquatable<Unit>
         Pos = pos;
         UnitType = unitType;
         MovesLeft = unitType.MoveAllowance;
+        Health = UnitType.MaxHealth;
     }
 
     public bool Equals(Unit? other) => Id.Equals(other?.Id);

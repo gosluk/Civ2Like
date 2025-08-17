@@ -13,8 +13,8 @@ public sealed class UnitAttacksUnitEvent : IGameEvent
     {
         Random rand = new();
 
-        //var attacker = game.Units[AttackerId];
-        //var defender = game.Units[DefenderId];
+        var attacker = game.Units[AttackerId];
+        var defender = game.Units[DefenderId];
 
         //var attackerProfile = new EffectiveProfile(attacker);
         //var defenderProfile = new EffectiveProfile(defender);
@@ -23,7 +23,7 @@ public sealed class UnitAttacksUnitEvent : IGameEvent
 
         //while (attackerProfile.Health > 0 && defenderProfile.Health > 0)
         //{
-            
+
         //}
     }
 

@@ -6,15 +6,13 @@ namespace Civ2Like.Events.Items;
 public sealed class UnitMovedEvent : IGameEvent
 {
     public required Guid UnitId { get; init; }
-    public required int FromQ { get; init; }
-    public required int FromR { get; init; }
-    public required int ToQ { get; init; }
-    public required int ToR { get; init; }
+    public required Hex From { get; init; }
+    public required Hex To { get; init; }
 
     public void Apply(Game game)
     {
-        var u = game.Units.First(x => x.Id == UnitId);
-        if (u == null) return;
-        u.Pos = game.Map.Canonical(new Hex(ToQ, ToR));
+        var u = game.Units[UnitId];
+       
+        u.Pos = game.Map.Canonical(To);
     }
 }

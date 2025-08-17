@@ -1,103 +1,193 @@
 ﻿using Civ2Like.Core;
 using Civ2Like.Core.Units;
+using Civ2Like.Views.Events;
+using CommunityToolkit.Mvvm.Messaging; // if your Unit/UnitState live here
 
-namespace Civ2Like.Events.Items;
-
-public sealed class UnitAttacksUnitEvent : IGameEvent
+namespace Civ2Like.Events.Items
 {
-    public required Guid AttackerId { get; init; }
-    
-    public required Guid DefenderId { get; init; }
-
-    public void Apply(Core.Game game)
+    public partial class UnitAttacksUnitEvent
     {
-        Random rand = new();
+        private Random _rand = new();
 
-        var attacker = game.Units[AttackerId];
-        var defender = game.Units[DefenderId];
+        public required Guid AttackerUnitId { get; init; }
 
-        //var attackerProfile = new EffectiveProfile(attacker);
-        //var defenderProfile = new EffectiveProfile(defender);
+        public required Guid DefenderUnitId { get; init; }
 
-        //bool isRanged = attacker.Pos.Distance(defender.Pos) > 1;
+        public required bool IsRanged { get; init; }
 
-        //while (attackerProfile.Health > 0 && defenderProfile.Health > 0)
-        //{
+        public void Apply(Game game)
+        {
+            var attacker = game.Units.FirstOrDefault(u => u.Id == AttackerUnitId);
+            var defender = game.Units.FirstOrDefault(u => u.Id == DefenderUnitId);
 
-        //}
+            if (attacker is null || defender is null)
+            {
+                throw new ArgumentException($"Both attacker and defender must be valid units. {AttackerUnitId} {DefenderUnitId}");
+            }
+
+            // Melee must be adjacent (distance 1). Ranged can be > 1 (no LoS/range check here).
+            if (!IsRanged && Hexagon.Hex.Distance(attacker.Pos, defender.Pos) > 1)
+            {
+                throw new ArgumentException($"Can not do melee attack on a distance. {Hexagon.Hex.Distance(attacker.Pos, defender.Pos)}");
+            }
+
+            while (attacker.Health > 0 && defender.Health > 0)
+            {
+                double damage = DealAttack(game, attacker, defender);
+
+                WeakReferenceMessenger.Default.Send(new UnitDamageInflictedEvent()
+                {
+                    Attacker = attacker,
+                    Defender = defender,
+                    Damage = damage,
+                    IsRanged = IsRanged,
+                    IsCritical = defender.Health == 0,
+                });
+
+                // Melee retaliation (only if defender survived and is not a ranged attack)
+                if (!IsRanged && defender.Health > 0 && defender.UnitType.AttackMelee > 0)
+                {
+                    damage = DealAttack(game, defender, attacker);
+
+                    WeakReferenceMessenger.Default.Send(new UnitDamageInflictedEvent()
+                    {
+                        Attacker = defender,
+                        Defender = attacker,
+                        Damage = damage,
+                        IsRanged = IsRanged,
+                        IsCritical = attacker.Health == 0,
+                    });
+                }
+
+                // ----------- Death & advance resolution -----------
+                if (defender.Health <= 0)
+                {
+                    game.ProcessEvent(new UnitKilledEvent()
+                    {
+                        UnitId = defender.Id,
+                        KillerId = attacker.Id
+                    });
+                }
+
+                if (attacker.Health <= 0)
+                {
+                    game.ProcessEvent(new UnitKilledEvent()
+                    {
+                        UnitId = attacker.Id,
+                        KillerId = defender.Id
+                    });
+                }
+                else
+                {
+                    if (!IsRanged)
+                    {
+                        // Only melee advances
+                        game.ProcessEvent(new UnitMovedEvent()
+                        {
+                            UnitId = attacker.Id,
+                            From = attacker.Pos,
+                            To = defender.Pos,
+                        });
+                        attacker.Pos = defender.Pos;
+                    }
+                }
+
+            }
+        }
+
+        private double DealAttack(Game game, Unit attacker, Unit defender)
+        {
+            // ----------- Initialization -----------
+            var attackerProfile = new EffectiveProfile(attacker);
+            var defenderProfile = new EffectiveProfile(defender);
+
+            // ----------- Combat stats -----------
+            // Attacker's attack strength
+            double attackStrength = IsRanged
+                ? attackerProfile.GenerateRangeAttack(_rand)
+                : attackerProfile.GenerateMeleeAttack(_rand);
+
+            // Defender's defense vs the attack type
+            double baseDefenderDefense = IsRanged
+                ? attackerProfile.GenerateRangeDefense(_rand)
+                : attackerProfile.GenerateMeleeDefense(_rand);
+
+            // Terrain bonus where the defender stands
+            var defTerrain = game.Map[defender.Pos].Terrain;
+            double terrainBonus = TerrainDefenseBonus(defTerrain);
+
+            // Fortify bonus applies only if fortified AND on land
+            double fortifyBonus = IsFortified(defender);
+
+            double effectiveDefenderDefense = baseDefenderDefense * (1.0 + terrainBonus + fortifyBonus);
+
+            // Damage to defender (always applied)
+            double dmgToDefender = Deal(attackStrength, effectiveDefenderDefense, baseDamage: 10);
+            defender.Health = (uint)Math.Round(Math.Max(0, defender.Health - dmgToDefender));
+
+            return dmgToDefender;
+        }
+
+        // ----------- Helpers -----------
+
+
+        private sealed class EffectiveProfile
+        {
+            public EffectiveProfile(Unit unit)
+            {
+                var stats = unit.EffectiveStats();
+                AttackRange = stats.AttackRange;
+                AttackMelee = stats.AttackMelee;
+                DefenseRange = stats.DefenseRanged;
+                DefenseMelee = stats.DefenseMelee;
+                Health = unit.Health;
+                MaxHealth = stats.MaxHealth;
+            }
+
+            public double AttackRange { get; }
+
+            public double AttackMelee { get; }
+
+            public double DefenseRange { get; }
+
+            public double DefenseMelee { get; }
+
+            public double Health { get; set; }
+
+            public double MaxHealth { get; }
+
+            private double GetCoefficient(Random rand) => Health / MaxHealth + (rand.NextDouble() * 0.1);
+
+            public double GenerateMeleeAttack(Random rand) => AttackMelee * GetCoefficient(rand);
+
+            public double GenerateMeleeDefense(Random rand) => DefenseMelee * GetCoefficient(rand);
+
+            public double GenerateRangeAttack(Random rand) => AttackRange * GetCoefficient(rand);
+
+            public double GenerateRangeDefense(Random rand) => DefenseRange * GetCoefficient(rand);
+        }
+
+        private static double IsFortified(Unit unit) => unit.State == UnitState.Fortified ? 0.25 : 0.0;
+
+        private static double TerrainDefenseBonus(Terrain t) => t switch
+        {
+            Terrain.Mountains => 0.50,
+            Terrain.Hills => 0.25,
+            Terrain.Forest => 0.25,
+            Terrain.Coast => 0.10,
+            _ => 0.00
+        };
+
+        private static double Deal(double attack, double defense, int baseDamage = 10)
+        {
+            // Smooth, deterministic damage: scales by A / (A + D), clamped a bit.
+            if (attack <= 0)
+            {
+                throw new ArgumentException("Attack must be greater than 0.");
+            }
+            double ratio = attack / (attack + Math.Max(1.0, defense));
+            double dmg = Math.Round(baseDamage * Math.Clamp(ratio, 0.05, 0.95));
+            return Math.Max(1, dmg);
+        }
     }
-
-    //private static void Strike(double attack, Unit attacker, double defense, Unit defender, Random rng)
-    //{
-    //    const double minHit = 0.10;
-    //    const double maxHit = 0.90;
-    //    const double S = 6; // Sigmoid steepness
-    //    const double gamma = 0.7; // Damage scaling
-
-    //    // Effective stats (add your terrain/promotions here)
-    //    double atk = attack * PowerScale(attacker.Health, attacker.UnitType.MaxHealth);
-    //    double def = defense * PowerScale(defender.Health, defender.UnitType.MaxHealth);
-
-    //    double pHit = Clamp(MidSigmoid(atk - def, S), minHit, maxHit);
-    //    if (rng.NextDouble() < pHit)
-    //    {
-    //        double ratio = Pow(atk, gamma) / (Pow(atk, gamma) + Pow(def, gamma) + 1e-9);
-    //        double v = Lerp(1 - varPct, 1 + varPct, rng.NextDouble());
-    //        int dmg = Math.Max(1, (int)Math.Round(baseDmg * ratio * v));
-    //        uDef = uDef with { Health = uDef.Health - dmg };
-    //    }
-    //}
-
-    //private static double PowerScale(double health, double maxHealth) => 0.5 + 0.5 * (double)health / maxHealth;
-
-    //private static double MidSigmoid(double x, double s) => 1.0 / (1.0 + Math.Exp(-x / s));
-
-    //private static double Clamp(double x, double lo, double hi) => x < lo ? lo : (x > hi ? hi : x);
-
-    //private static double Lerp(double a, double b, double t) => a + (b - a) * t;
-
-    //private static double Pow(double x, double y) => Math.Pow(Math.Max(0.000001, x), y);
-
-    //private sealed class EffectiveProfile
-    //{
-    //    public EffectiveProfile(Unit unit)
-    //    {
-    //        var stats = unit.EffectiveStats();
-    //        AttackRange = stats.AttackRange;
-    //        AttackMelee = stats.AttackMelee;
-    //        DefenseRange = stats.DefenseRanged;
-    //        DefenseMelee = stats.DefenseMelee;
-    //        Health = unit.Health;
-    //    }
-
-    //    public double AttackRange { get; }
-
-    //    public double AttackMelee { get; }
-
-    //    public double DefenseRange { get; }
-
-    //    public double DefenseMelee { get; }
-
-    //    public double Health { get; set; }
-
-    //    public double GenerateMeleeArrack(Random rand)
-    //    {
-    //       return AttackMelee * (1 + rand.NextDouble() * 0.2);
-    //    }
-
-    //    public double GenerateMeleeDefense(Random rand)
-    //    {
-    //        return DefenseMelee * (1 + rand.NextDouble() * 0.2);
-    //    }
-
-    //    public double GenerateRangeAttack(Random rand)
-    //    {
-    //        return AttackRange * (1 + rand.NextDouble() * 0.2);
-    //    }
-
-    //    public double GenerateRangeDefense(Random rand)
-    //    {
-    //        return DefenseRange * (1 + rand.NextDouble() * 0.2);
-    //    }
-    //}
 }

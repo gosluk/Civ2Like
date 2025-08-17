@@ -290,7 +290,7 @@ public sealed class Game
             SelectedUnit.MovesLeft -= (uint)cost;
 
             Events.Process(this, new UnitStateChangedEvent() { UnitId = SelectedUnit.Id, NewState = UnitState.Ready });
-            Events.Process(this, new UnitMovedEvent { UnitId = SelectedUnit.Id, FromQ = from.Q, FromR = from.R, ToQ = to.Q, ToR = to.R });
+            Events.Process(this, new UnitMovedEvent { UnitId = SelectedUnit.Id, From = from, To = to });
         }
     }
 

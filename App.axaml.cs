@@ -2,19 +2,18 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 
-namespace Civ2Like
-{
-    public partial class App : Application
-    {
-        public override void Initialize() => AvaloniaXamlLoader.Load(this);
+namespace Civ2Like;
 
-        public override void OnFrameworkInitializationCompleted()
+public partial class App : Application
+{
+    public override void Initialize() => AvaloniaXamlLoader.Load(this);
+
+    public override void OnFrameworkInitializationCompleted()
+    {
+        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-            {
-                desktop.MainWindow = new MainWindow();
-            }
-            base.OnFrameworkInitializationCompleted();
+            desktop.MainWindow = new MainWindow();
         }
+        base.OnFrameworkInitializationCompleted();
     }
 }

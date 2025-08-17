@@ -1,50 +1,48 @@
-using DynamicData;
-using System.Collections.Generic;
+using Civ2Like.Core;
 using System.Text.Json;
 
-namespace Civ2Like
+namespace Civ2Like.Events;
+
+public sealed class EventProcessor
 {
-    public sealed class EventProcessor
+    public List<IGameEvent> Log { get; } = new();
+    public bool IsReplaying { get; private set; }
+
+    private static readonly JsonSerializerOptions JsonOptions = new()
     {
-        public List<IGameEvent> Log { get; } = new();
-        public bool IsReplaying { get; private set; }
+        WriteIndented = true,
+        TypeInfoResolver = Civ2LikeJsonContext.Default
+    };
 
-        private static readonly JsonSerializerOptions JsonOptions = new()
+    public void Process(Game game, params IGameEvent[] e)
+    {
+        foreach (var ev in e)
         {
-            WriteIndented = true,
-            TypeInfoResolver = Civ2LikeJsonContext.Default
-        };
+            ev.Apply(game);
 
-        public void Process(Game game, params IGameEvent[] e)
-        {
-            foreach (var ev in e)
+            if (!IsReplaying)
             {
-                ev.Apply(game);
-
-                if (!IsReplaying)
-                {
-                    Log.Add(ev);
-                }
+                Log.Add(ev);
             }
         }
+    }
 
-        public void Replay(Game game, IEnumerable<IGameEvent> events)
+    public void Replay(Game game, IEnumerable<IGameEvent> events)
+    {
+        IsReplaying = true;
+        foreach (var e in events)
         {
-            IsReplaying = true;
-            foreach (var e in events)
-            {
-                e.Apply(game);
-            }
-            IsReplaying = false;
+            e.Apply(game);
         }
+        IsReplaying = false;
+    }
 
-        public string ToJson() => JsonSerializer.Serialize(Log, JsonOptions);
+    public string ToJson() => JsonSerializer.Serialize(Log, JsonOptions);
 
-        public void LoadFromJson(string json)
-        {
-            Log.Clear();
-            var list = JsonSerializer.Deserialize<List<IGameEvent>>(json, JsonOptions);
-            if (list != null) Log.AddRange(list);
-        }
+    public void LoadFromJson(string json)
+    {
+        Log.Clear();
+        var list = JsonSerializer.Deserialize<List<IGameEvent>>(json, JsonOptions);
+        if (list != null) Log.AddRange(list);
     }
 }

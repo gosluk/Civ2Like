@@ -1,0 +1,47 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:controls="using:Civ2Like.Views"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
+             x:Class="Civ2Like.Views.ActivePlayerControl">
+	<Grid>
+		<StackPanel Margin="10">
+			<Grid Margin="0,0,0,20">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="Auto" />
+					<ColumnDefinition Width="Auto" />
+					<ColumnDefinition Width="*" />
+				</Grid.ColumnDefinitions>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+				</Grid.RowDefinitions>
+
+				<WrapPanel Grid.ColumnSpan="2">
+					<controls:PlayerFlag PrimaryBrush="{Binding ColorA}" SecondaryBrush="{Binding ColorB}"
+										 Margin="3"
+										 Height="32" Width="32"/>
+					<TextBlock Text="{Binding PlayerName}" TextWrapping="Wrap" Grid.Column="1" VerticalAlignment="Center"/>
+				</WrapPanel>
+				
+
+				<TextBlock Text="Gold:" Margin="3,0" Grid.Column="0" Grid.Row="1"/>
+				<TextBlock Text="{Binding Gold}" Grid.Column="1" Grid.Row="1"/>
+
+				<TextBlock Text="Binding No. of Units:" Margin="3,0" Grid.Column="0" Grid.Row="2"/>
+				<TextBlock Text="{Binding NumberOfUnits}" Grid.Column="1" Grid.Row="2"/>
+
+				<TextBlock Text="Binding No. of Cities:" Margin="3,0" Grid.Column="0" Grid.Row="3"/>
+				<TextBlock Text="{Binding NumberOfCities}" Grid.Column="1" Grid.Row="3"/>
+
+				<TextBlock Text="Turn:" Margin="3,0" Grid.Column="0" Grid.Row="4"/>
+				<TextBlock Text="{Binding Turn}" Grid.Column="1" Grid.Row="4"/>
+
+			</Grid>
+		</StackPanel>
+	</Grid>
+</UserControl>

@@ -1,7 +1,6 @@
-﻿using Civ2Like.Core;
-using Civ2Like.Hexagon;
+﻿using Civ2Like.Hexagon;
 
-namespace Civ2Like.View.Core;
+namespace Civ2Like.Core.World;
 
 internal static class MapGeneration
 {

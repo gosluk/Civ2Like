@@ -25,6 +25,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <AvaloniaXaml Remove="Core\Interfaces\**" />
+	  <Compile Remove="Core\Interfaces\**" />
+	  <EmbeddedResource Remove="Core\Interfaces\**" />
+	  <None Remove="Core\Interfaces\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <Compile Remove="Views\GameView.Initializing.cs" />
 	</ItemGroup>
 	
@@ -43,7 +50,6 @@
 	</ItemGroup>
 	
 	<ItemGroup>
-	  <Folder Include="Core\Interfaces\" />
 	  <Folder Include="Resources\Data\" />
 	</ItemGroup>
 	

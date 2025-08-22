@@ -1,7 +1,6 @@
 using Civ2Like.Hexagon;
-using Civ2Like.View;
 
-namespace Civ2Like.Core;
+namespace Civ2Like.Core.World;
 
 public sealed class Map
 {

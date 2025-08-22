@@ -1,3 +1,4 @@
+using Civ2Like.Core.Nations;
 using Civ2Like.Core.Players;
 using Civ2Like.Hexagon;
 
@@ -22,6 +23,8 @@ public sealed class Unit : UuidObject, IEquatable<Unit>
     public uint Kills { get; set; } = 0;
 
     public List<UnitBonus> Bonuses { get; } = new();
+
+    public Nation? Nation { get; set; }
 
     public Unit(Player owner, Hex pos, UnitType unitType)
     {

@@ -1,16 +1,16 @@
 using Avalonia.Media;
 using Civ2Like.Core.Cities;
 using Civ2Like.Core.NameGeneration;
+using Civ2Like.Core.Nations;
 using Civ2Like.Core.Players;
 using Civ2Like.Core.Units;
+using Civ2Like.Core.World;
 using Civ2Like.Events;
 using Civ2Like.Events.Items;
 using Civ2Like.Hexagon;
-using Civ2Like.View;
 using Civ2Like.View.Core;
 using DynamicData;
 using System.Reflection;
-using System.Xml.Linq;
 
 namespace Civ2Like.Core;
 
@@ -37,6 +37,10 @@ public sealed class Game
     public ListIdObjects<City>   Cities  { get; } = new();
 
     public ListIdObjects<UnitType> UnitTypes { get; } = new();
+
+    public ListIdObjects<Nation> Nations { get; } = new();
+
+    public HashSet<NationRelation> NationRelations { get; } = new();
 
 
     public CityNameGenerator CityNameGenerator { get; } = new();
@@ -186,7 +190,7 @@ public sealed class Game
     private Hex FindNearestLandAlongRow(Hex start, int dir)
     {
         int r = start.R;
-        int qStart = Map.QStart(r);
+        int qStart = World.Map.QStart(r);
         int c0 = start.Q - qStart;
 
         for (int k = 0; k < Map.Width; k++)

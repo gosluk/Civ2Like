@@ -1,3 +1,5 @@
+using Civ2Like.Core.World;
+
 namespace Civ2Like.Core;
 
 public enum MovementPreset { Land, Naval, Flying }

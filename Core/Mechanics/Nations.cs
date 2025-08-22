@@ -8,11 +8,11 @@ public static class Nations
 {
     public static void ApplyGrowth(Nation nation, IReadOnlyCollection<KeyValuePair<Hex, Tile>> map)
     {
-       
+        var originalState = map.ToList();
     }
 
     public static void ApplyMigration(Nation nation, IReadOnlyCollection<KeyValuePair<Hex, Tile>> map)
     {
-
+        var originalState = map.ToList();
     }
 }

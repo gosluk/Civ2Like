@@ -7,4 +7,6 @@ public struct PopulationUnit
     public ulong Value { get; set; }
 
     public uint Units => (uint)(Value / 1000);
+
+    public PopulationUnit Clone() => new PopulationUnit { Nation = Nation, Value = Value, };
 }

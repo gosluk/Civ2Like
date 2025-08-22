@@ -11,5 +11,11 @@ public sealed class Tile
 
     public Player? Owner { get; set; }
 
-    public Dictionary<Nation, PopulationUnit> Populations { get; } = new();
+    public Dictionary<Nation, PopulationUnit> Populations { get; private set; } = new();
+
+    public Tile Clone() => new Tile(Terrain)
+    {
+        Owner = Owner,
+        Populations = Populations.ToDictionary(kv => kv.Key, kv => kv.Value.Clone()),
+    };
 }

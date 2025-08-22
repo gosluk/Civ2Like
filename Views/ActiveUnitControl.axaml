@@ -7,8 +7,8 @@
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
              x:Class="Civ2Like.Views.ActiveUnitControl" IsVisible="{Binding IsSelected}">
 	<Grid>
-		<StackPanel Margin="10">
-			<Grid Margin="0,0,0,20">
+		<StackPanel Margin="0">
+			<Grid Margin="0">
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition Width="Auto" />
 					<ColumnDefinition Width="Auto" />

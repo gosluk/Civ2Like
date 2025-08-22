@@ -43,6 +43,10 @@ public sealed class EventProcessor
     {
         Log.Clear();
         var list = JsonSerializer.Deserialize<List<IGameEvent>>(json, JsonOptions);
-        if (list != null) Log.AddRange(list);
+
+        if (list is not null)
+        {
+            Log.AddRange(list);
+        }
     }
 }

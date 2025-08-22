@@ -42,12 +42,13 @@ public sealed class Game
 
     public HashSet<NationRelation> NationRelations { get; } = new();
 
-
     public CityNameGenerator CityNameGenerator { get; } = new();
 
     public UnitNameGenerator UnitNameGenerator { get; } = new();
 
     public FactionNameGenerator FactionNameGenerator { get; } = new();
+
+    public NationNameGenerator NationNameGenerator { get; } = new();
 
     public uint Turn { get; internal set; } = 1;
     
@@ -72,6 +73,8 @@ public sealed class Game
 
         left  = FindNearestLandAlongRow(left, +1);
         right = FindNearestLandAlongRow(right, -1);
+
+        RandomizeNations();
 
         RandomizePlayer(FactionNameGenerator.Next());
         RandomizePlayer(FactionNameGenerator.Next());
@@ -156,6 +159,24 @@ public sealed class Game
         });
     }
 
+    private void RandomizeNations()
+    {
+        for (int i = 0; i < 20; i++)
+        {
+            Nations.Add(new Nation()
+            {
+                Name = NationNameGenerator.Next(),
+                Ideology = new IdeologyProfile()
+                {
+                    EgalitarianVsAuthority = _rng.NextDouble(),
+                    PacifistVsMilitarist = _rng.NextDouble(),
+                    MaterialistVsSpiritual = _rng.NextDouble(),
+                    XenophileVsXenophobe = _rng.NextDouble(),
+                },
+            });
+        }
+    }
+
     private void RandomizePlayer(string name)
     {
         var brushes = typeof(Colors).
@@ -168,6 +189,7 @@ public sealed class Game
             Name = name,
             ColorA = Get(),
             ColorB = Get(),
+            Founder = Nations[_rng.Next(Nations.Count - 1)],
         });
     }
 

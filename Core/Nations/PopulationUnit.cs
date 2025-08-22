@@ -1,6 +1,6 @@
 ﻿namespace Civ2Like.Core.Nations;
 
-public struct PopulationUnit
+public sealed class PopulationUnit
 {
     public required Nation Nation { get; init; }
 

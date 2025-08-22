@@ -59,14 +59,21 @@ public sealed class Map
     public IEnumerable<Hex> AllHexes()
     {
         for (int r = 0; r < Height; r++)
-        for (int c = 0; c < Width; c++)
-            yield return FromColRow(c, r);
+        {
+            for (int c = 0; c < Width; c++)
+            {
+                yield return FromColRow(c, r);
+            }
+        }
     }
 
     public IEnumerable<Hex> Neighbors(Hex h)
     {
         var ch = Canonical(h);
+
         foreach (var d in Hex.NeighborDirs)
+        {
             yield return Canonical(ch.Add(d));
+        }
     }
 }

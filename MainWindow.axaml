@@ -8,21 +8,24 @@
 	<DockPanel LastChildFill="True">
 		<WrapPanel DockPanel.Dock="Top">
 		</WrapPanel>
-		<StackPanel DockPanel.Dock="Right" Width="300">
-			<Border BorderThickness="2" BorderBrush="Black" CornerRadius="8" Margin="2">
-				<local:ActivePlayerControl x:Name="ActivePlayerControl" />
+		<Grid ColumnDefinitions="Auto, 2, *">
+			<Border>
+				<ScrollViewer HorizontalScrollBarVisibility="Auto"
+							VerticalScrollBarVisibility="Auto"
+							  AllowAutoHide="False">
+					<local:GameView x:Name="GameView" Focusable="True" />
+				</ScrollViewer>
 			</Border>
-			<Border BorderThickness="2" BorderBrush="Black" CornerRadius="8" Margin="2"
-					IsVisible="{CompiledBinding #ActiveUnitControl.IsVisible}">
-				<local:ActiveUnitControl x:Name="ActiveUnitControl"/>
-			</Border>
-		</StackPanel>
-		<Border>
-			<ScrollViewer HorizontalScrollBarVisibility="Auto"
-						VerticalScrollBarVisibility="Auto"
-						  AllowAutoHide="False">
-				<local:GameView x:Name="GameView" Focusable="True" />
-			</ScrollViewer>
-		</Border>
+			<GridSplitter Grid.Column="1" Background="Gray" ResizeDirection="Columns"/>
+			<StackPanel DockPanel.Dock="Right" Grid.Column="2" Margin="3">
+				<Border BorderThickness="2" BorderBrush="Black" CornerRadius="8" Margin="2">
+					<local:ActivePlayerControl x:Name="ActivePlayerControl" />
+				</Border>
+				<Border BorderThickness="2" BorderBrush="Black" CornerRadius="8" Margin="2"
+						IsVisible="{CompiledBinding #ActiveUnitControl.IsVisible}">
+					<local:ActiveUnitControl x:Name="ActiveUnitControl"/>
+				</Border>
+			</StackPanel>
+		</Grid>
 	</DockPanel>
 </Window>

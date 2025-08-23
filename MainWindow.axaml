@@ -8,7 +8,7 @@
 	<DockPanel LastChildFill="True">
 		<WrapPanel DockPanel.Dock="Top">
 		</WrapPanel>
-		<Grid ColumnDefinitions="Auto, 2, *">
+		<Grid ColumnDefinitions="Auto, 1, *">
 			<Border>
 				<ScrollViewer HorizontalScrollBarVisibility="Auto"
 							VerticalScrollBarVisibility="Auto"
@@ -16,7 +16,7 @@
 					<local:GameView x:Name="GameView" Focusable="True" />
 				</ScrollViewer>
 			</Border>
-			<GridSplitter Grid.Column="1" Background="Gray" ResizeDirection="Columns"/>
+			<GridSplitter Grid.Column="1" Background="LightGray" ResizeDirection="Columns"/>
 			<StackPanel DockPanel.Dock="Right" Grid.Column="2" Margin="3">
 				<Border BorderThickness="2" BorderBrush="Black" CornerRadius="8" Margin="2">
 					<local:ActivePlayerControl x:Name="ActivePlayerControl" />
@@ -25,6 +25,7 @@
 						IsVisible="{CompiledBinding #ActiveUnitControl.IsVisible}">
 					<local:ActiveUnitControl x:Name="ActiveUnitControl"/>
 				</Border>
+				<local:TileInfoControl Margin="3" />
 			</StackPanel>
 		</Grid>
 	</DockPanel>

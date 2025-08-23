@@ -22,6 +22,10 @@ public sealed class TurnEndedEvent : IGameEvent
             }
         }
 
-        //game.SelectedUnit = game.Units.First(u => u.Player == game.ActivePlayer);
+        foreach (var nation in game.Nations)
+        {
+            Core.Mechanics.Nations.ApplyGrowth(nation, game.Map.MapData);
+            Core.Mechanics.Nations.ApplyMigration(nation, game.Map);
+        }
     }
 }

@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Media.Immutable;
 using Avalonia.Media.TextFormatting;
+using Avalonia.Platform;
 using Avalonia.Threading;
 using Civ2Like.Config;
 using Civ2Like.Core;
@@ -26,7 +27,7 @@ public sealed partial class GameView : Control, IDisposable
 
     private Hex? _hoverScreenHex;
     private Hex? _hoverWorldHex;
-    private readonly ITargetBlock<string> _hoverNotifier;
+    private readonly ITargetBlock<Hex> _hoverNotifier;
     private IReadOnlyList<Hex>? _currentPath;
     private Point _origin;
 
@@ -48,10 +49,11 @@ public sealed partial class GameView : Control, IDisposable
 
         _origin = ComputeOrigin();
 
-        _hoverNotifier = new ActionBlock<string>(async msg =>
+        _hoverNotifier = new ActionBlock<Hex>(async msg =>
             {
                 await Task.Delay(300);
                 await Dispatcher.UIThread.InvokeAsync(InvalidateVisual);
+                RefreshTile(msg);
             },
             new ExecutionDataflowBlockOptions
             {
@@ -71,6 +73,11 @@ public sealed partial class GameView : Control, IDisposable
         VerticalAlignment = Avalonia.Layout.VerticalAlignment.Top;
 
         WeakReferenceMessenger.Default.Register(this);
+    }
+
+    private void RefreshTile(Hex? tile)
+    {
+        WeakReferenceMessenger.Default.Send(new TileSelectionChangedEvent(_game, tile ?? _hoverWorldHex ?? null));
     }
 
     public void Dispose()

@@ -14,7 +14,7 @@ using System.Reflection;
 
 namespace Civ2Like.Core;
 
-public sealed class Game
+public sealed partial class Game
 {
     private readonly Random _rng;
     private int _unitIdCounter = 1;
@@ -74,139 +74,9 @@ public sealed class Game
         left  = FindNearestLandAlongRow(left, +1);
         right = FindNearestLandAlongRow(right, -1);
 
-        RandomizeNations();
-
-        RandomizePlayer(FactionNameGenerator.Next());
-        RandomizePlayer(FactionNameGenerator.Next());
-
-        InitializeUnitTypes();
-
-        Players.ForEach(RandomizeStart);
+        InitializeTestSetup();
 
         Events.Process(this, new GameStartedEvent { Width = width, Height = height, Seed = seed });
-    }
-
-    private void InitializeUnitTypes()
-    {
-        UnitTypes.Add(new UnitType()
-        {
-            MaxHealth = 10,
-            MoveAllowance = 2,
-            Rules = MovementRules.LandOnly(),
-            TileVisibility = 1,
-            Name = "Solider",
-            AttackRange = 0,
-            AttackRanged = 0,
-            AttackMelee = 1,
-            DefenseRanged = 1,
-            DefenseMelee = 1,
-        });
-
-        UnitTypes.Add(new UnitType()
-        {
-            MaxHealth = 5,
-            MoveAllowance = 2,
-            Rules = MovementRules.LandOnly(),
-            TileVisibility = 1,
-            Name = "Settler",
-            AttackRange = 0,
-            AttackRanged = 0,
-            AttackMelee = 0,
-            DefenseRanged = 1,
-            DefenseMelee = 1,
-        });
-
-        UnitTypes.Add(new UnitType()
-        {
-            MaxHealth = 10,
-            MoveAllowance = 3,
-            Rules = MovementRules.LandOnly(),
-            TileVisibility = 1,
-            Name = "Runner",
-            AttackRange = 0,
-            AttackRanged = 0,
-            AttackMelee = 2,
-            DefenseRanged = 1,
-            DefenseMelee = 2,
-        });
-
-        UnitTypes.Add(new UnitType()
-        {
-            MaxHealth = 10,
-            MoveAllowance = 1,
-            Rules = MovementRules.LandOnly(),
-            TileVisibility = 1,
-            Name = "Defender",
-            AttackRange = 1,
-            AttackRanged = 2,
-            AttackMelee = 2,
-            DefenseRanged = 1,
-            DefenseMelee = 2,
-        });
-
-        UnitTypes.Add(new UnitType()
-        {
-            MaxHealth = 10,
-            MoveAllowance = 1,
-            Rules = MovementRules.NavalOnly(),
-            TileVisibility = 1,
-            Name = "Ship",
-            AttackRange = 1,
-            AttackRanged = 2,
-            AttackMelee = 2,
-            DefenseRanged = 1,
-            DefenseMelee = 2,
-        });
-    }
-
-    private void RandomizeNations()
-    {
-        for (int i = 0; i < 20; i++)
-        {
-            Nations.Add(new Nation()
-            {
-                Name = NationNameGenerator.Next(),
-                Ideology = new IdeologyProfile()
-                {
-                    EgalitarianVsAuthority = _rng.NextDouble(),
-                    PacifistVsMilitarist = _rng.NextDouble(),
-                    MaterialistVsSpiritual = _rng.NextDouble(),
-                    XenophileVsXenophobe = _rng.NextDouble(),
-                },
-            });
-        }
-    }
-
-    private void RandomizePlayer(string name)
-    {
-        var brushes = typeof(Colors).
-            GetProperties(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy).
-            ToArray();
-        Avalonia.Media.Color Get() => (Avalonia.Media.Color)brushes[new Random().Next(brushes.Length)].GetValue(null)!;
-
-        Players.Add(new Player(Guid.NewGuid())
-        {
-            Name = name,
-            ColorA = Get(),
-            ColorB = Get(),
-            Founder = Nations[_rng.Next(Nations.Count - 1)],
-        });
-    }
-
-    private void RandomizeStart(Player player)
-    {
-        Terrain[] notAllowed = [Terrain.Ocean, Terrain.Coast, Terrain.Mountains, Terrain.Desert];
-        var start = Map.AllHexes().Where(h => !notAllowed.Contains(Map[h].Terrain) && !Units.Select(i => i.Pos).Contains(h)).Skip(60).FirstOrDefault();
-        if (start == default)
-        {
-            throw new NotImplementedException("Can not find start location for player " + player.Name);
-        }
-
-        var unit = new Unit(player, start, UnitTypes.First())
-        {
-            Name = UnitNameGenerator.Next(),
-        };
-        Units.Add(unit);
     }
 
     private Hex FindNearestLandAlongRow(Hex start, int dir)

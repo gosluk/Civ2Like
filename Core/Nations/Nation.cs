@@ -11,6 +11,6 @@ public sealed class Nation : UuidObject, IEquatable<Nation>
 
     public bool Equals(Nation? other) => Id.Equals(other?.Id);
 
-    public override string ToString() => $"{Name} ({Id}), {Bonuses} {Ideology}";
+    public override string ToString() => $"{Name} ({Id}), {Ideology} {string.Join(", ", Bonuses)}";
 }
 

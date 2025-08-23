@@ -14,10 +14,12 @@ public static class Nations
         {
             PopulationUnit pu = pos.Value.Populations[nation];
 
-            double coefficient = 1.0 + TerrainFertility(pos.Value.Terrain) + _rand.NextDouble() * 0.2;
+            double coefficient = TerrainFertility(pos.Value.Terrain) * 4 + _rand.NextDouble() * 0.2;
             coefficient += nation.Bonuses.Sum(i => i.GrowthMultiplier);
 
-            pu.Value += (ulong)(pu.Value * coefficient * 10);
+            ulong growth = (ulong)(pu.Value * coefficient * 0.1);
+
+            pu.Value += growth;
         }
     }
 
@@ -49,9 +51,9 @@ public static class Nations
 
             coefficient += nation.Bonuses.Sum(i => i.MigrationMultiplier);
 
-            ulong allMigratingPeople = (ulong)(pu.Value * coefficient * 0.001);
+            ulong allMigratingPeople = (ulong)(pu.Value * coefficient * 0.05);
 
-            if (allMigratingPeople < 10)
+            if (allMigratingPeople < 3)
             {
                 continue;
             }
@@ -67,20 +69,24 @@ public static class Nations
 
                 var tile = map[neighbour];
 
-                double desirability = TerrainFertility(tile.Terrain) * _rand.NextDouble() * 0.3;
+                double desirability = TerrainFertility(tile.Terrain);
 
-                if (desirability < 0.05)
+                if (desirability < 0.01)
                 {
                     continue;
                 }
 
-                uint migratingPeople = (uint)(allMigratingPeople * desirability);
+                uint migratingPeople = (uint)(allMigratingPeople * desirability * 10);
 
                 if (migratingPeople > 0)
                 {
                     if (tile.Populations.ContainsKey(nation))
                     {
                         var puToModify = tile.Populations[nation];
+                        if (puToModify.Value > pu.Value)
+                        {
+                            migratingPeople = 0;
+                        }
                         puToModify.Value += migratingPeople;
                     }
                     else

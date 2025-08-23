@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Collections.Immutable;
+using System.Text;
 
 namespace Civ2Like.Core.NameGeneration;
 
@@ -75,7 +76,9 @@ public sealed class FactionNameGenerator
         _rng = seed.HasValue ? new Random(seed.Value) : new Random();
     }
 
-    public void ResetUsed() { lock (_lock)
+    public void ResetUsed()
+    {
+        lock (_lock)
         {
             _used.Clear();
         }
@@ -278,27 +281,29 @@ public sealed class FactionNameGenerator
 
     private sealed class ThemeParts
     {
-        public string[] Prefixes { get; init; } = Array.Empty<string>();
-        public string[] Cores { get; init; } = Array.Empty<string>();
-        public string[] Suffixes { get; init; } = Array.Empty<string>();
+        public ImmutableArray<string> Prefixes { get; init; } = [];
+
+        public ImmutableArray<string> Cores { get; init; } = [];
+
+        public ImmutableArray<string> Suffixes { get; init; } = [];
     }
 
-    private static readonly string[] PowerPrefixes =
-    {
+    private static readonly ImmutableArray<string> PowerPrefixes =
+    [
         "United", "Great", "Grand", "New", "Free", "Upper", "Lower", "Greater", "Nova"
-    };
+    ];
 
-    private static readonly string[] GenericEndings =
-    {
+    private static readonly ImmutableArray<string> GenericEndings =
+    [
         "ia","a","ar","or","on","en","an","um","ara","ora","eria","ora","ara","enia","arae"
-    };
+    ];
 
-    private static readonly GovernmentType[] AutoGovPool =
-    {
+    private static readonly ImmutableArray<GovernmentType> AutoGovPool =
+    [
         GovernmentType.Empire, GovernmentType.Kingdom, GovernmentType.Republic, GovernmentType.Federation,
         GovernmentType.Confederation, GovernmentType.Dominion, GovernmentType.Commonwealth,
         GovernmentType.Principality, GovernmentType.Duchy, GovernmentType.Union
-    };
+    ];
 
     private ThemeParts GetTheme(FactionTheme theme)
     {
@@ -319,74 +324,74 @@ public sealed class FactionNameGenerator
 
     private static readonly ThemeParts Generic = new ThemeParts
     {
-        Prefixes = new[] { "Val", "Nor", "Cal", "Mar", "Bel", "Dor", "Ald", "El", "Gar", "Kar", "Lor" },
-        Cores = new[] {
+        Prefixes = ["Val", "Nor", "Cal", "Mar", "Bel", "Dor", "Ald", "El", "Gar", "Kar", "Lor"],
+        Cores = [
             "val","nor","cal","dor","el","mar","ver","sil","tor","ran","par","kel","mor","hal","zan","quin","lor","gar","lin","ria","vyr"
-        },
-        Suffixes = new[] { "eth", "or", "en", "ar", "in", "ion", "or", "oth", "ir", "an", "um", "ia" }
+        ],
+        Suffixes = ["eth", "or", "en", "ar", "in", "ion", "or", "oth", "ir", "an", "um", "ia"]
     };
 
     private static readonly ThemeParts Nordic = new ThemeParts
     {
-        Prefixes = new[] { "As", "Bjorn", "Ul", "Thor", "Skj", "Sve", "Rag", "Sig", "Hjal" },
-        Cores = new[] { "fjord", "heim", "lund", "vik", "havn", "bjorn", "ulv", "stor", "grim", "sten", "vald", "haug", "nor", "skar" },
-        Suffixes = new[] { "gard", "heim", "vik", "fjord", "by" }
+        Prefixes = ["As", "Bjorn", "Ul", "Thor", "Skj", "Sve", "Rag", "Sig", "Hjal"],
+        Cores = ["fjord", "heim", "lund", "vik", "havn", "bjorn", "ulv", "stor", "grim", "sten", "vald", "haug", "nor", "skar"],
+        Suffixes = ["gard", "heim", "vik", "fjord", "by"]
     };
 
     private static readonly ThemeParts Desert = new ThemeParts
     {
-        Prefixes = new[] { "Al", "Az", "Sar", "Kal", "Mir", "Ras", "Zar", "Qas", "Har" },
-        Cores = new[] { "sah", "qar", "dar", "mir", "kal", "bad", "ram", "zan", "far", "naf", "had", "zar", "qir", "bah" },
-        Suffixes = new[] { "abad", "mir", "dar", "pur", "zar", "rah" }
+        Prefixes = ["Al", "Az", "Sar", "Kal", "Mir", "Ras", "Zar", "Qas", "Har"],
+        Cores = ["sah", "qar", "dar", "mir", "kal", "bad", "ram", "zan", "far", "naf", "had", "zar", "qir", "bah"],
+        Suffixes = ["abad", "mir", "dar", "pur", "zar", "rah"]
     };
 
     private static readonly ThemeParts Slavic = new ThemeParts
     {
-        Prefixes = new[] { "Nov", "Star", "Vel", "Zag", "Niz", "Slav", "Bor", "Kras", "Mosk", "Vlad" },
-        Cores = new[] { "grad", "slav", "bor", "gor", "mir", "pol", "vol", "ros", "lav", "dan", "nik", "mil" },
-        Suffixes = new[] { "ograd", "opol", "ov", "ovo", "ava", "insk", "any", "ino" }
+        Prefixes = ["Nov", "Star", "Vel", "Zag", "Niz", "Slav", "Bor", "Kras", "Mosk", "Vlad"],
+        Cores = ["grad", "slav", "bor", "gor", "mir", "pol", "vol", "ros", "lav", "dan", "nik", "mil"],
+        Suffixes = ["ograd", "opol", "ov", "ovo", "ava", "insk", "any", "ino"]
     };
 
     private static readonly ThemeParts Latin = new ThemeParts
     {
-        Prefixes = new[] { "San", "Santa", "Aqua", "Val", "Porta", "Monte", "Nova" },
-        Cores = new[] { "aqua", "mar", "val", "terra", "luna", "sol", "flor", "ver", "vent", "port", "cast" },
-        Suffixes = new[] { "ia", "ium", "ana", "ora", "ona", "tia", "polis" }
+        Prefixes = ["San", "Santa", "Aqua", "Val", "Porta", "Monte", "Nova"],
+        Cores = ["aqua", "mar", "val", "terra", "luna", "sol", "flor", "ver", "vent", "port", "cast"],
+        Suffixes = ["ia", "ium", "ana", "ora", "ona", "tia", "polis"]
     };
 
     private static readonly ThemeParts EastAsian = new ThemeParts
     {
-        Prefixes = new[] { "Kai", "Shin", "Hana", "Ling", "Yue", "Rin", "Kyo", "Tian", "Sora", "Mei" },
-        Cores = new[] { "kai", "shin", "han", "lin", "yue", "rin", "kyo", "tian", "sora", "mei", "kan", "tan", "jin", "li", "su", "to", "ya", "na" },
-        Suffixes = new[] { "kyo", "to", "shan", "lin", "jin", "min", "wan" }
+        Prefixes = ["Kai", "Shin", "Hana", "Ling", "Yue", "Rin", "Kyo", "Tian", "Sora", "Mei"],
+        Cores = ["kai", "shin", "han", "lin", "yue", "rin", "kyo", "tian", "sora", "mei", "kan", "tan", "jin", "li", "su", "to", "ya", "na"],
+        Suffixes = ["kyo", "to", "shan", "lin", "jin", "min", "wan"]
     };
 
     private static readonly ThemeParts Steppe = new ThemeParts
     {
-        Prefixes = new[] { "Alt", "Or", "Nog", "Tim", "Kip", "Sarm", "Turg", "Kaz", "Khaz" },
-        Cores = new[] { "alt", "orda", "nog", "kara", "tura", "aral", "sari", "saka", "sary", "ural", "khan", "karak" },
-        Suffixes = new[] { "ord", "stan", "gar", "khan", "dar", "ar" }
+        Prefixes = ["Alt", "Or", "Nog", "Tim", "Kip", "Sarm", "Turg", "Kaz", "Khaz"],
+        Cores = ["alt", "orda", "nog", "kara", "tura", "aral", "sari", "saka", "sary", "ural", "khan", "karak"],
+        Suffixes = ["ord", "stan", "gar", "khan", "dar", "ar"]
     };
 
     private static readonly ThemeParts Celtic = new ThemeParts
     {
-        Prefixes = new[] { "Bryn", "Dun", "Kil", "Glen", "Ail", "Bal", "Inver", "Aber" },
-        Cores = new[] { "bryn", "dun", "kil", "glen", "loch", "cairn", "ard", "aval", "muir", "mor", "tor" },
-        Suffixes = new[] { "more", "mere", "loch", "shire", "ness", "ford" }
+        Prefixes = ["Bryn", "Dun", "Kil", "Glen", "Ail", "Bal", "Inver", "Aber"],
+        Cores = ["bryn", "dun", "kil", "glen", "loch", "cairn", "ard", "aval", "muir", "mor", "tor"],
+        Suffixes = ["more", "mere", "loch", "shire", "ness", "ford"]
     };
 
     private static readonly ThemeParts Islander = new ThemeParts
     {
-        Prefixes = new[] { "Cor", "Ari", "Bora", "Navi", "Mira", "Zea", "Lumi", "Tahi" },
-        Cores = new[] { "cora", "ari", "bora", "navi", "mira", "zea", "lumi", "tahi", "lago", "nalu", "tiare" },
-        Suffixes = new[] { "lua", "nui", "tua", "haka", "laga", "cay", "atol" }
+        Prefixes = ["Cor", "Ari", "Bora", "Navi", "Mira", "Zea", "Lumi", "Tahi"],
+        Cores = ["cora", "ari", "bora", "navi", "mira", "zea", "lumi", "tahi", "lago", "nalu", "tiare"],
+        Suffixes = ["lua", "nui", "tua", "haka", "laga", "cay", "atol"]
     };
 
     private static readonly ThemeParts Fantasy = new ThemeParts
     {
-        Prefixes = new[] { "Aether", "Eld", "Umber", "Myth", "Star", "Sun", "Moon", "Obsid", "Run" },
-        Cores = new[] { "aeth", "eld", "umbr", "myth", "star", "sun", "moon", "obsid", "run", "drak", "valar", "seraph", "arc" },
-        Suffixes = new[] { "ion", "ara", "orium", "heim", "hold", "spire", "ia", "oth" }
+        Prefixes = ["Aether", "Eld", "Umber", "Myth", "Star", "Sun", "Moon", "Obsid", "Run"],
+        Cores = ["aeth", "eld", "umbr", "myth", "star", "sun", "moon", "obsid", "run", "drak", "valar", "seraph", "arc"],
+        Suffixes = ["ion", "ara", "orium", "heim", "hold", "spire", "ia", "oth"]
     };
 
     // ===== Small phonotactic helpers =====
@@ -447,12 +452,16 @@ public sealed class FactionNameGenerator
         foreach (var ch in t.ToLowerInvariant())
         {
             if (!char.IsLetter(ch)) { vRun = cRun = 0; continue; }
-            if (IsVowel(ch)) { vRun++; cRun = 0; if (vRun >= 3)
+            if (IsVowel(ch))
+            {
+                vRun++; cRun = 0; if (vRun >= 3)
                 {
                     return false;
                 }
             }
-            else { cRun++; vRun = 0; if (cRun >= 4)
+            else
+            {
+                cRun++; vRun = 0; if (cRun >= 4)
                 {
                     return false;
                 }

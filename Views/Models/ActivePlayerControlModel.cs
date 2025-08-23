@@ -60,6 +60,13 @@ internal class ActivePlayerControlModel
         set => SetProperty(ref _colorB, value);
     }
 
+    private string? _nationName;
+    public string? NationName
+    {
+        get => _nationName;
+        set => SetProperty(ref _nationName, value);
+    }
+
     public void Receive(PlayerSelectionChangedEvent message)
     {
         PlayerName = message.Player.Name;
@@ -69,5 +76,6 @@ internal class ActivePlayerControlModel
         Turn = message.Turn;
         ColorA = new SolidColorBrush(message.Player!.ColorA);
         ColorB = new SolidColorBrush(message.Player!.ColorB);
+        NationName = message.Player?.Founder.Name;
     }
 }

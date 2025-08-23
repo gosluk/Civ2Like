@@ -1,5 +1,6 @@
 ﻿using Civ2Like.Core;
 using Civ2Like.Core.Units;
+using Civ2Like.Core.World;
 using Civ2Like.Views.Events;
 using CommunityToolkit.Mvvm.Messaging; // if your Unit/UnitState live here
 

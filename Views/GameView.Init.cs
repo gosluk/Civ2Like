@@ -2,7 +2,7 @@
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
-using Civ2Like.Core;
+using Civ2Like.Core.World;
 using System.Collections.Immutable;
 
 namespace Civ2Like.Views;

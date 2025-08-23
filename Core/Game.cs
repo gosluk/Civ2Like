@@ -1,20 +1,20 @@
 using Avalonia.Media;
 using Civ2Like.Core.Cities;
 using Civ2Like.Core.NameGeneration;
+using Civ2Like.Core.Nations;
 using Civ2Like.Core.Players;
 using Civ2Like.Core.Units;
+using Civ2Like.Core.World;
 using Civ2Like.Events;
 using Civ2Like.Events.Items;
 using Civ2Like.Hexagon;
-using Civ2Like.View;
 using Civ2Like.View.Core;
 using DynamicData;
 using System.Reflection;
-using System.Xml.Linq;
 
 namespace Civ2Like.Core;
 
-public sealed class Game
+public sealed partial class Game
 {
     private readonly Random _rng;
     private int _unitIdCounter = 1;
@@ -38,12 +38,17 @@ public sealed class Game
 
     public ListIdObjects<UnitType> UnitTypes { get; } = new();
 
+    public ListIdObjects<Nation> Nations { get; } = new();
+
+    public HashSet<NationRelation> NationRelations { get; } = new();
 
     public CityNameGenerator CityNameGenerator { get; } = new();
 
     public UnitNameGenerator UnitNameGenerator { get; } = new();
 
     public FactionNameGenerator FactionNameGenerator { get; } = new();
+
+    public NationNameGenerator NationNameGenerator { get; } = new();
 
     public uint Turn { get; internal set; } = 1;
     
@@ -69,131 +74,29 @@ public sealed class Game
         left  = FindNearestLandAlongRow(left, +1);
         right = FindNearestLandAlongRow(right, -1);
 
-        RandomizePlayer(FactionNameGenerator.Next());
-        RandomizePlayer(FactionNameGenerator.Next());
-
-        InitializeUnitTypes();
-
-        Players.ForEach(RandomizeStart);
+        InitializeTestSetup();
 
         Events.Process(this, new GameStartedEvent { Width = width, Height = height, Seed = seed });
-    }
-
-    private void InitializeUnitTypes()
-    {
-        UnitTypes.Add(new UnitType()
-        {
-            MaxHealth = 10,
-            MoveAllowance = 2,
-            Rules = MovementRules.LandOnly(),
-            TileVisibility = 1,
-            Name = "Solider",
-            AttackRange = 0,
-            AttackRanged = 0,
-            AttackMelee = 1,
-            DefenseRanged = 1,
-            DefenseMelee = 1,
-        });
-
-        UnitTypes.Add(new UnitType()
-        {
-            MaxHealth = 5,
-            MoveAllowance = 2,
-            Rules = MovementRules.LandOnly(),
-            TileVisibility = 1,
-            Name = "Settler",
-            AttackRange = 0,
-            AttackRanged = 0,
-            AttackMelee = 0,
-            DefenseRanged = 1,
-            DefenseMelee = 1,
-        });
-
-        UnitTypes.Add(new UnitType()
-        {
-            MaxHealth = 10,
-            MoveAllowance = 3,
-            Rules = MovementRules.LandOnly(),
-            TileVisibility = 1,
-            Name = "Runner",
-            AttackRange = 0,
-            AttackRanged = 0,
-            AttackMelee = 2,
-            DefenseRanged = 1,
-            DefenseMelee = 2,
-        });
-
-        UnitTypes.Add(new UnitType()
-        {
-            MaxHealth = 10,
-            MoveAllowance = 1,
-            Rules = MovementRules.LandOnly(),
-            TileVisibility = 1,
-            Name = "Defender",
-            AttackRange = 1,
-            AttackRanged = 2,
-            AttackMelee = 2,
-            DefenseRanged = 1,
-            DefenseMelee = 2,
-        });
-
-        UnitTypes.Add(new UnitType()
-        {
-            MaxHealth = 10,
-            MoveAllowance = 1,
-            Rules = MovementRules.NavalOnly(),
-            TileVisibility = 1,
-            Name = "Ship",
-            AttackRange = 1,
-            AttackRanged = 2,
-            AttackMelee = 2,
-            DefenseRanged = 1,
-            DefenseMelee = 2,
-        });
-    }
-
-    private void RandomizePlayer(string name)
-    {
-        var brushes = typeof(Colors).
-            GetProperties(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy).
-            ToArray();
-        Avalonia.Media.Color Get() => (Avalonia.Media.Color)brushes[new Random().Next(brushes.Length)].GetValue(null)!;
-
-        Players.Add(new Player(Guid.NewGuid())
-        {
-            Name = name,
-            ColorA = Get(),
-            ColorB = Get(),
-        });
-    }
-
-    private void RandomizeStart(Player player)
-    {
-        Terrain[] notAllowed = [Terrain.Ocean, Terrain.Coast, Terrain.Mountains, Terrain.Desert];
-        var start = Map.AllHexes().Where(h => !notAllowed.Contains(Map[h].Terrain) && !Units.Select(i => i.Pos).Contains(h)).Skip(60).FirstOrDefault();
-        if (start == default)
-        {
-            throw new NotImplementedException("Can not find start location for player " + player.Name);
-        }
-
-        var unit = new Unit(player, start, UnitTypes.First())
-        {
-            Name = UnitNameGenerator.Next(),
-        };
-        Units.Add(unit);
     }
 
     private Hex FindNearestLandAlongRow(Hex start, int dir)
     {
         int r = start.R;
-        int qStart = Map.QStart(r);
+        int qStart = World.Map.QStart(r);
         int c0 = start.Q - qStart;
 
         for (int k = 0; k < Map.Width; k++)
         {
-            int c = (c0 + dir * k) % Map.Width; if (c < 0) c += Map.Width;
+            int c = (c0 + dir * k) % Map.Width; if (c < 0)
+            {
+                c += Map.Width;
+            }
+
             var h = Map.FromColRow(c, r);
-            if (Map[h].Terrain != Terrain.Ocean) return h;
+            if (Map[h].Terrain != Terrain.Ocean)
+            {
+                return h;
+            }
         }
         return start;
     }
@@ -214,7 +117,10 @@ public sealed class Game
                 int qb = Map.QStart(rr) + cc;
                 var b_ax = new Hex(qb, rr);
                 int d = Hex.Distance(a_ax, b_ax);
-                if (d < best) best = d;
+                if (d < best)
+                {
+                    best = d;
+                }
             }
         }
         return best;
@@ -233,12 +139,19 @@ public sealed class Game
         while (open.Count > 0)
         {
             var cur = open.Dequeue();
-            if (cur == goal) break;
+            if (cur == goal)
+            {
+                break;
+            }
 
             foreach (var n in Map.Neighbors(cur))
             {
                 int cost = rules.MoveCost(Map[n].Terrain);
-                if (cost >= 9999) continue;
+                if (cost >= 9999)
+                {
+                    continue;
+                }
+
                 int ng = g[cur] + cost;
                 if (!g.TryGetValue(n, out var old) || ng < old)
                 {
@@ -251,11 +164,19 @@ public sealed class Game
         }
 
         var path = new List<Hex>();
-        if (!came.ContainsKey(goal) && start != goal) return path;
+        if (!came.ContainsKey(goal) && start != goal)
+        {
+            return path;
+        }
+
         var c2 = goal; path.Add(c2);
         while (c2 != start)
         {
-            if (!came.TryGetValue(c2, out var prev)) break;
+            if (!came.TryGetValue(c2, out var prev))
+            {
+                break;
+            }
+
             c2 = prev; path.Add(c2);
         }
         path.Reverse();
@@ -352,7 +273,10 @@ public sealed class Game
     {
         ActiveIndex = (ActiveIndex + 1) % Players.Count;
 
-        if (ActiveIndex == 0) Turn++;
+        if (ActiveIndex == 0)
+        {
+            Turn++;
+        }
 
         foreach (var u in Units)
         {

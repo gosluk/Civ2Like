@@ -5,6 +5,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<OutputType>WinExe</OutputType>
 		<StartupObject>Civ2Like.Program</StartupObject>
+		<ApplicationIcon>Resources\hex_icon_245317.ico</ApplicationIcon>
 	</PropertyGroup>
 	
 	<ItemGroup>
@@ -25,7 +26,18 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <AvaloniaXaml Remove="Core\Interfaces\**" />
+	  <Compile Remove="Core\Interfaces\**" />
+	  <EmbeddedResource Remove="Core\Interfaces\**" />
+	  <None Remove="Core\Interfaces\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <Compile Remove="Views\GameView.Initializing.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Include="Resources\hex_icon_245317.ico" />
 	</ItemGroup>
 	
 	<ItemGroup>
@@ -43,7 +55,6 @@
 	</ItemGroup>
 	
 	<ItemGroup>
-	  <Folder Include="Core\Interfaces\" />
 	  <Folder Include="Resources\Data\" />
 	</ItemGroup>
 	

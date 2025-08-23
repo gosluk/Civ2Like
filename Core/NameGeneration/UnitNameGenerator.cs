@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Immutable;
 using System.Text;
 
 namespace Civ2Like.Core.NameGeneration;
@@ -54,17 +52,29 @@ public sealed class UnitNameGenerator
     }
 
     /// <summary>Clear the internal used-name registry.</summary>
-    public void ResetUsed() { lock (_lock) _used.Clear(); }
+    public void ResetUsed() { lock (_lock)
+        {
+            _used.Clear();
+        }
+    }
 
     /// <summary>Pre-populate the "used" set to avoid duplicates across saves or sessions.</summary>
     public void MarkAsUsed(IEnumerable<string> names)
     {
-        if (names == null) return;
+        if (names == null)
+        {
+            return;
+        }
+
         lock (_lock)
         {
             foreach (var n in names)
+            {
                 if (!string.IsNullOrWhiteSpace(n))
+                {
                     _used.Add(n.Trim());
+                }
+            }
         }
     }
 
@@ -86,8 +96,15 @@ public sealed class UnitNameGenerator
 
                 name = ToTitleCase(CleanupSpaces(name));
 
-                if (!LooksNice(name)) continue;
-                if (EnsureUnique && _used.Contains(name)) continue;
+                if (!LooksNice(name))
+                {
+                    continue;
+                }
+
+                if (EnsureUnique && _used.Contains(name))
+                {
+                    continue;
+                }
 
                 _used.Add(name);
                 return name;
@@ -100,7 +117,10 @@ public sealed class UnitNameGenerator
                 var candidate = baseName;
                 int i = 2;
                 while (_used.Contains(candidate) && i < 1000)
+                {
                     candidate = $"{baseName} {i++}";
+                }
+
                 _used.Add(candidate);
                 return candidate;
             }
@@ -111,7 +131,10 @@ public sealed class UnitNameGenerator
     /// <summary>Generate many names.</summary>
     public IEnumerable<string> NextMany(int count)
     {
-        for (int i = 0; i < count; i++) yield return Next();
+        for (int i = 0; i < count; i++)
+        {
+            yield return Next();
+        }
     }
 
     // ====== Patterns ======
@@ -183,8 +206,10 @@ public sealed class UnitNameGenerator
         }
 
         if (_rng.NextDouble() < 0.5)
+        {
             return (_rng.NextDouble() < ArticleChance ? "The " : string.Empty) +
                    $"{Pick(t.Adjectives)} {Pick(t.NounsPlural)}";
+        }
 
         // adjective + specific title
         return $"{Pick(t.Adjectives)} {Pick(t.Titles)}";
@@ -195,7 +220,9 @@ public sealed class UnitNameGenerator
         // e.g., "3rd Fleet", "Corsair Squadron", "Azure Mariners"
         string maybeNum = _rng.NextDouble() < NumberingChance ? MakeNumberToken() + " " : string.Empty;
         if (_rng.NextDouble() < 0.5)
+        {
             return maybeNum + Pick(t.NavalFormations); // Fleet, Armada, Squadron
+        }
 
         return $"{Pick(t.Adjectives)} {Pick(t.NavalCrewsPlural)}";
     }
@@ -222,7 +249,10 @@ public sealed class UnitNameGenerator
     {
         // e.g., "Stormwing Squadron", "Thunderhawks", "Skyguard"
         if (_rng.NextDouble() < 0.5)
+        {
             return $"{Pick(t.AirCompoundLeft)}{Pick(t.AirCompoundRight)}";
+        }
+
         return $"{Pick(t.Adjectives)} {Pick(t.AirUnitsPlural)}";
     }
 
@@ -235,7 +265,11 @@ public sealed class UnitNameGenerator
     private string MakeNumberToken()
     {
         int n = _rng.Next(1, 100); // 1..99
-        if (UseRomanNumerals) return ToRoman(n);
+        if (UseRomanNumerals)
+        {
+            return ToRoman(n);
+        }
+
         return ToOrdinal(n);
     }
 
@@ -246,16 +280,32 @@ public sealed class UnitNameGenerator
 
     private static bool LooksNice(string name)
     {
-        if (string.IsNullOrWhiteSpace(name)) return false;
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return false;
+        }
+
         var trimmed = name.Trim();
-        if (trimmed.Length < 3 || trimmed.Length > 40) return false;
-        if (trimmed.Contains("  ")) return false;
+        if (trimmed.Length < 3 || trimmed.Length > 40)
+        {
+            return false;
+        }
+
+        if (trimmed.Contains("  "))
+        {
+            return false;
+        }
+
         return true;
     }
 
     private static string ToTitleCase(string raw)
     {
-        if (string.IsNullOrWhiteSpace(raw)) return raw ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            return raw ?? string.Empty;
+        }
+
         var parts = raw.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         for (int i = 0; i < parts.Length; i++)
         {
@@ -277,7 +327,11 @@ public sealed class UnitNameGenerator
     private static string ToRoman(int number)
     {
         // 1..3999
-        if (number <= 0 || number >= 4000) return number.ToString();
+        if (number <= 0 || number >= 4000)
+        {
+            return number.ToString();
+        }
+
         var map = new (int val, string sym)[]
         {
             (1000,"M"),(900,"CM"),(500,"D"),(400,"CD"),
@@ -287,13 +341,20 @@ public sealed class UnitNameGenerator
         var sb = new StringBuilder();
         int n = number;
         foreach (var (v, s) in map)
+        {
             while (n >= v) { sb.Append(s); n -= v; }
+        }
+
         return sb.ToString();
     }
 
     private static T Pick<T>(IReadOnlyList<T> list)
     {
-        if (list.Count == 0) throw new InvalidOperationException("Empty list.");
+        if (list.Count == 0)
+        {
+            throw new InvalidOperationException("Empty list.");
+        }
+
         return list[_sharedRng.Next(list.Count)];
     }
 
@@ -311,73 +372,174 @@ public sealed class UnitNameGenerator
     // ===== Data =====
 
     private readonly record struct ThemeParts(
-        string[] Adjectives,
-        string[] Animals,
-        string[] NounsPlural,
-        string[] Titles,
+        ImmutableArray<string> Adjectives,
+        ImmutableArray<string> Animals,
+        ImmutableArray<string> NounsPlural,
+        ImmutableArray<string> Titles,
 
         // Naval
-        string[] NavalFormations,
-        string[] NavalCrewsPlural,
-        string[] ShipProperNames,
-        string[] ShipWordLeft,
-        string[] ShipWordRight,
+        ImmutableArray<string> NavalFormations,
+        ImmutableArray<string> NavalCrewsPlural,
+        ImmutableArray<string> ShipProperNames,
+        ImmutableArray<string> ShipWordLeft,
+        ImmutableArray<string> ShipWordRight,
 
         // Air
-        string[] AirFormations,
-        string[] AirUnitsPlural,
-        string[] AirCompoundLeft,
-        string[] AirCompoundRight,
+        ImmutableArray<string> AirFormations,
+        ImmutableArray<string> AirUnitsPlural,
+        ImmutableArray<string> AirCompoundLeft,
+        ImmutableArray<string> AirCompoundRight,
 
         // Fantasy
-        string[] FantasyObjects
+        ImmutableArray<string> FantasyObjects
     );
 
     private static readonly ThemeParts Generic = new(
-        Adjectives: new[] { "Iron", "Crimson", "Golden", "Silver", "Jade", "Obsidian", "Azure", "Scarlet", "Ivory", "Emerald", "Onyx", "Storm", "Shadow", "Frost", "Ember", "Thunder", "Radiant", "Valiant" },
-        Animals: new[] { "Wolves", "Lions", "Ravens", "Eagles", "Hawks", "Bears", "Tigers", "Dragons", "Stallions", "Cobras", "Boars", "Kraken" },
-        NounsPlural: new[] { "Guard", "Lancers", "Vanguard", "Spears", "Blades", "Sentinels", "Rangers", "Wardens", "Phalanx", "Legionnaires", "Skirmishers", "Marauders" },
-        Titles: new[] { "Company", "Cohort", "Regiment", "Brigade", "Legion", "Phalanx", "Battalion", "Detachment", "Guard", "Scouts", "Dragoons", "Musketeers", "Infantry", "Cavalry", "Pikemen", "Archers" },
+        Adjectives:
+        [
+            "Iron",
+            "Crimson",
+            "Golden",
+            "Silver",
+            "Jade",
+            "Obsidian",
+            "Azure",
+            "Scarlet",
+            "Ivory",
+            "Emerald",
+            "Onyx",
+            "Storm",
+            "Shadow",
+            "Frost",
+            "Ember",
+            "Thunder",
+            "Radiant",
+            "Valiant",
+        ],
+        Animals: ["Wolves", "Lions", "Ravens", "Eagles", "Hawks", "Bears", "Tigers", "Dragons", "Stallions", "Cobras", "Boars", "Kraken"],
+        NounsPlural: ["Guard", "Lancers", "Vanguard", "Spears", "Blades", "Sentinels", "Rangers", "Wardens", "Phalanx", "Legionnaires", "Skirmishers", "Marauders"],
+        Titles:
+        [
+            "Company",
+            "Cohort",
+            "Regiment",
+            "Brigade",
+            "Legion",
+            "Phalanx",
+            "Battalion",
+            "Detachment",
+            "Guard",
+            "Scouts",
+            "Dragoons",
+            "Musketeers",
+            "Infantry",
+            "Cavalry",
+            "Pikemen",
+            "Archers",
+        ],
 
-        NavalFormations: new[] { "Fleet", "Armada", "Squadron", "Flotilla", "Corsair Band" },
-        NavalCrewsPlural: new[] { "Mariners", "Corsairs", "Privateers", "Sea Guard", "Buccaneers" },
-        ShipProperNames: new[] { "Valiant", "Resolute", "Dawnfire", "Wavecutter", "Starfall", "Stormcaller", "Nightwind", "Sunspire", "Ironclad", "Skybreaker", "Tempest", "Radiance", "Seaborn", "Aegis" },
-        ShipWordLeft: new[] { "Sea", "Wave", "Star", "Storm", "Sun", "Moon", "Sky", "Wind", "Iron", "Sword", "Dawn", "Night" },
-        ShipWordRight: new[] { "cutter", "runner", "breaker", "fire", "chaser", "song", "blade", "spire", "bloom", "drift" },
+        NavalFormations: ["Fleet", "Armada", "Squadron", "Flotilla", "Corsair Band"],
+        NavalCrewsPlural: ["Mariners", "Corsairs", "Privateers", "Sea Guard", "Buccaneers"],
+        ShipProperNames:
+        [
+            "Valiant",
+            "Resolute",
+            "Dawnfire",
+            "Wavecutter",
+            "Starfall",
+            "Stormcaller",
+            "Nightwind",
+            "Sunspire",
+            "Ironclad",
+            "Skybreaker",
+            "Tempest",
+            "Radiance",
+            "Seaborn",
+            "Aegis",
+        ],
+        ShipWordLeft: ["Sea", "Wave", "Star", "Storm", "Sun", "Moon", "Sky", "Wind", "Iron", "Sword", "Dawn", "Night"],
+        ShipWordRight: ["cutter", "runner", "breaker", "fire", "chaser", "song", "blade", "spire", "bloom", "drift"],
 
-        AirFormations: new[] { "Wing", "Squadron", "Flight" },
-        AirUnitsPlural: new[] { "Hawks", "Riders", "Skyguard", "Stormwings", "Thunderhawks" },
-        AirCompoundLeft: new[] { "Storm", "Thunder", "Sky", "Wind", "Sun", "Moon", "Star", "Cloud" },
-        AirCompoundRight: new[] { "wing", "talon", "riders", "hawks", "lancers", "guard" },
+        AirFormations: ["Wing", "Squadron", "Flight"],
+        AirUnitsPlural: ["Hawks", "Riders", "Skyguard", "Stormwings", "Thunderhawks"],
+        AirCompoundLeft: ["Storm", "Thunder", "Sky", "Wind", "Sun", "Moon", "Star", "Cloud"],
+        AirCompoundRight: ["wing", "talon", "riders", "hawks", "lancers", "guard"],
 
-        FantasyObjects: new[] { "Flame", "Crescent", "Oath", "Phoenix", "Anvil", "Sigil", "Verdant Crown", "Eclipse", "Gleam", "Shard", "Aegis" }
+        FantasyObjects: ["Flame", "Crescent", "Oath", "Phoenix", "Anvil", "Sigil", "Verdant Crown", "Eclipse", "Gleam", "Shard", "Aegis"]
     );
 
     private static readonly ThemeParts Land = Generic with
     {
-        Titles = new[] { "Company", "Cohort", "Regiment", "Brigade", "Legion", "Phalanx", "Battalion", "Guard", "Rangers", "Dragoons", "Sappers", "Pioneers", "Halberdiers", "Hoplites" },
-        NounsPlural = new[] { "Guard", "Lancers", "Vanguard", "Spears", "Blades", "Sentinels", "Wardens", "Phalanx", "Legionnaires", "Pikemen", "Arquebusiers", "Skirmishers" }
+        Titles =
+        [
+            "Company",
+            "Cohort",
+            "Regiment",
+            "Brigade",
+            "Legion",
+            "Phalanx",
+            "Battalion",
+            "Guard",
+            "Rangers",
+            "Dragoons",
+            "Sappers",
+            "Pioneers",
+            "Halberdiers",
+            "Hoplites",
+        ],
+        NounsPlural =
+
+        [
+            "Guard",
+            "Lancers",
+            "Vanguard",
+            "Spears",
+            "Blades",
+            "Sentinels",
+            "Wardens",
+            "Phalanx",
+            "Legionnaires",
+            "Pikemen",
+            "Arquebusiers",
+            "Skirmishers",
+        ]
     };
 
     private static readonly ThemeParts Naval = Generic with
     {
-        NavalFormations = new[] { "Fleet", "Armada", "Squadron", "Flotilla" },
-        NavalCrewsPlural = new[] { "Mariners", "Corsairs", "Privateers", "Sea Guard" },
-        ShipProperNames = new[] { "Valiant", "Resolute", "Dawnfire", "Wavecutter", "Starfall", "Stormcaller", "Nightwind", "Sunspire", "Ironclad", "Tempest", "Trident", "Leviathan", "Sea Drake" }
+        NavalFormations = ["Fleet", "Armada", "Squadron", "Flotilla"],
+        NavalCrewsPlural = ["Mariners", "Corsairs", "Privateers", "Sea Guard"],
+        ShipProperNames =
+
+        [
+            "Valiant",
+            "Resolute",
+            "Dawnfire",
+            "Wavecutter",
+            "Starfall",
+            "Stormcaller",
+            "Nightwind",
+            "Sunspire",
+            "Ironclad",
+            "Tempest",
+            "Trident",
+            "Leviathan",
+            "Sea Drake",
+        ]
     };
 
     private static readonly ThemeParts Air = Generic with
     {
-        AirFormations = new[] { "Wing", "Squadron", "Flight" },
-        AirUnitsPlural = new[] { "Hawks", "Riders", "Skyguard", "Stormwings", "Thunderhawks", "Falcons" },
-        AirCompoundLeft = new[] { "Storm", "Thunder", "Sky", "Wind", "Star", "Cloud" },
-        AirCompoundRight = new[] { "wing", "talons", "riders", "hawks", "guard", "lancers" }
+        AirFormations = ["Wing", "Squadron", "Flight"],
+        AirUnitsPlural = ["Hawks", "Riders", "Skyguard", "Stormwings", "Thunderhawks", "Falcons"],
+        AirCompoundLeft = ["Storm", "Thunder", "Sky", "Wind", "Star", "Cloud"],
+        AirCompoundRight = ["wing", "talons", "riders", "hawks", "guard", "lancers"]
     };
 
     private static readonly ThemeParts Fantasy = Generic with
     {
-        Adjectives = new[] { "Silver", "Golden", "Verdant", "Umbral", "Runed", "Elder", "Arcane", "Sacred", "Abyssal", "Solar", "Lunar", "Ember", "Storm", "Jade", "Onyx" },
-        NounsPlural = new[] { "Wardens", "Blades", "Sentinels", "Keepers", "Magi", "Runeguard", "Spellbinders", "Paladins", "Justicars" },
-        FantasyObjects = new[] { "Silver Flame", "Emerald Star", "Sun Spear", "Moonstone", "Runebrand", "Aegis", "Crystal Rose", "Obsidian Crown", "Radiant Oath" }
+        Adjectives = ["Silver", "Golden", "Verdant", "Umbral", "Runed", "Elder", "Arcane", "Sacred", "Abyssal", "Solar", "Lunar", "Ember", "Storm", "Jade", "Onyx"],
+        NounsPlural = ["Wardens", "Blades", "Sentinels", "Keepers", "Magi", "Runeguard", "Spellbinders", "Paladins", "Justicars"],
+        FantasyObjects = ["Silver Flame", "Emerald Star", "Sun Spear", "Moonstone", "Runebrand", "Aegis", "Crystal Rose", "Obsidian Crown", "Radiant Oath"]
     };
 }

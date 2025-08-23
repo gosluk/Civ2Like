@@ -13,8 +13,15 @@ public static class HexLayout
 
     public static Hex PixelToHex(double x, double y, double sizeX, double sizeY)
     {
-        if (sizeX == 0.0) throw new ArgumentOutOfRangeException(nameof(sizeX));
-        if (sizeY == 0.0) throw new ArgumentOutOfRangeException(nameof(sizeY));
+        if (sizeX == 0.0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(sizeX));
+        }
+
+        if (sizeY == 0.0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(sizeY));
+        }
 
         // Normalize pixel coords by axis scales
         double nx = x / sizeX;
@@ -40,8 +47,14 @@ public static class HexLayout
         double rDiff = Math.Abs(rr - r);
         double sDiff = Math.Abs(rs - s);
 
-        if (qDiff > rDiff && qDiff > sDiff) rq = -rr - rs;
-        else if (rDiff > sDiff) rr = -rq - rs;
+        if (qDiff > rDiff && qDiff > sDiff)
+        {
+            rq = -rr - rs;
+        }
+        else if (rDiff > sDiff)
+        {
+            rr = -rq - rs;
+        }
 
         return new Hex(rq, rr);
     }

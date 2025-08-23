@@ -1,7 +1,6 @@
 using Civ2Like.Hexagon;
-using Civ2Like.View;
 
-namespace Civ2Like.Core;
+namespace Civ2Like.Core.World;
 
 public sealed class Map
 {
@@ -18,13 +17,15 @@ public sealed class Map
         {
             int qStart = QStart(r);
             for (int c = 0; c < Width; c++)
+            {
                 _tiles[new Hex(qStart + c, r)] = new Tile(Terrain.Ocean);
+            }
         }
     }
 
     public IEnumerable<Tile> Tiles => _tiles.Values;
 
-    public IEnumerable<KeyValuePair<Hex, Tile>> MapData => _tiles;
+    public IReadOnlyDictionary<Hex, Tile> MapData => _tiles;
 
     public static int QStart(int r) => -(int)Math.Floor(r / 2.0);
 
@@ -60,14 +61,21 @@ public sealed class Map
     public IEnumerable<Hex> AllHexes()
     {
         for (int r = 0; r < Height; r++)
-        for (int c = 0; c < Width; c++)
-            yield return FromColRow(c, r);
+        {
+            for (int c = 0; c < Width; c++)
+            {
+                yield return FromColRow(c, r);
+            }
+        }
     }
 
     public IEnumerable<Hex> Neighbors(Hex h)
     {
         var ch = Canonical(h);
+
         foreach (var d in Hex.NeighborDirs)
+        {
             yield return Canonical(ch.Add(d));
+        }
     }
 }

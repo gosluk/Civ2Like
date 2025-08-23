@@ -6,14 +6,15 @@
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
              x:Class="Civ2Like.Views.ActivePlayerControl">
 	<Grid>
-		<StackPanel Margin="10">
-			<Grid Margin="0,0,0,20">
+		<StackPanel Margin="0">
+			<Grid Margin="0">
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition Width="Auto" />
 					<ColumnDefinition Width="Auto" />
 					<ColumnDefinition Width="*" />
 				</Grid.ColumnDefinitions>
 				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto" />
 					<RowDefinition Height="Auto" />
 					<RowDefinition Height="Auto" />
 					<RowDefinition Height="Auto" />
@@ -40,6 +41,9 @@
 
 				<TextBlock Text="Turn:" Margin="3,0" Grid.Column="0" Grid.Row="4"/>
 				<TextBlock Text="{Binding Turn}" Grid.Column="1" Grid.Row="4"/>
+
+				<TextBlock Text="Founder Nation:" Margin="3,0" Grid.Column="0" Grid.Row="5"/>
+				<TextBlock Text="{Binding NationName}" Grid.Column="1" Grid.Row="5"/>
 
 			</Grid>
 		</StackPanel>

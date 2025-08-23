@@ -70,7 +70,7 @@ internal class ActivePlayerControlModel
     public void Receive(PlayerSelectionChangedEvent message)
     {
         PlayerName = message.Player.Name;
-        Gold = message.Player.Gold;
+        Gold = (long)message.Player.Gold;
         NumberOfUnits = message.NumberOfUnits;
         NumberOfCities = message.NumberOfCities;
         Turn = message.Turn;

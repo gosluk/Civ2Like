@@ -3,26 +3,26 @@
 public sealed class NationRelation : IEquatable<NationRelation>
 {
     // All in [0..1]; derived attitude can be computed
-    public float Trust { get; set; } = 0.5f;       // long-term reliability
+    public decimal Trust { get; set; } = 0.5m;       // long-term reliability
 
-    public float Grievance { get; set; } = 0.0f;   // historical hurts
+    public decimal Grievance { get; set; } = 0.0m;   // historical hurts
 
-    public float CulturalAffinity { get; set; } = 0.5f; // language/religion/history
+    public decimal CulturalAffinity { get; set; } = 0.5m; // language/religion/history
 
     public required Nation NationA { get; init; }
 
     public required Nation NationB { get; init; }
 
-    public float Attitude =>
-        Math.Clamp(0.60f * Trust
-                 + 0.25f * CulturalAffinity
-                 - 0.50f * Grievance, 0f, 1f);
+    public decimal Attitude =>
+        Math.Clamp(0.60m * Trust
+                 + 0.25m * CulturalAffinity
+                 - 0.50m * Grievance, 0m, 1m);
 
     // Helper to map CompatibilityScore (−1..+1) into approval [0..1]
     public static class ApprovalMath
     {
-        public static float FromCompatibility(int score /* −4..+4 */)
-            => Math.Clamp(0.5f + 0.125f * score, 0f, 1f); // linear map
+        public static decimal FromCompatibility(decimal score /* −4..+4 */)
+            => Math.Clamp(0.5m + 0.125m * score, 0m, 1m); // linear map
     }
 
     public bool Equals(NationRelation? other)

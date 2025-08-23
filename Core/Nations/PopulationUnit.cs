@@ -4,9 +4,9 @@ public sealed class PopulationUnit
 {
     public required Nation Nation { get; init; }
 
-    public ulong Value { get; set; }
+    public decimal Value { get; set; }
 
-    public uint Units => (uint)(Value / 1000);
+    public decimal PopulationUnits => Value * 0.001m;
 
     public PopulationUnit Clone() => new PopulationUnit { Nation = Nation, Value = Value, };
 }

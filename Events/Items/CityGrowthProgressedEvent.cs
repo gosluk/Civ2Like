@@ -18,9 +18,6 @@ public sealed class CityGrowthProgressedEvent : IGameEvent
         }
         else
         {
-            city.SetGrowth();
-            city.Population++;
-
             Hex? nextTile = FindNextTileToAcquire(game, city.Pos);
 
             if (nextTile is not null)

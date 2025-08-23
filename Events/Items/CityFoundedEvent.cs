@@ -21,7 +21,7 @@ public sealed class CityFoundedEvent : IGameEvent
 
         Hex pos = new(Q, R);
 
-        var city = new City(owner, Name, pos);
+        var city = new City(owner, Name, pos) { Game = game };
 
         if (!game.Cities.ContainsKey(CityId))
         {

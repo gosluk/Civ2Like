@@ -87,9 +87,16 @@ public sealed partial class Game
 
         for (int k = 0; k < Map.Width; k++)
         {
-            int c = (c0 + dir * k) % Map.Width; if (c < 0) c += Map.Width;
+            int c = (c0 + dir * k) % Map.Width; if (c < 0)
+            {
+                c += Map.Width;
+            }
+
             var h = Map.FromColRow(c, r);
-            if (Map[h].Terrain != Terrain.Ocean) return h;
+            if (Map[h].Terrain != Terrain.Ocean)
+            {
+                return h;
+            }
         }
         return start;
     }
@@ -110,7 +117,10 @@ public sealed partial class Game
                 int qb = Map.QStart(rr) + cc;
                 var b_ax = new Hex(qb, rr);
                 int d = Hex.Distance(a_ax, b_ax);
-                if (d < best) best = d;
+                if (d < best)
+                {
+                    best = d;
+                }
             }
         }
         return best;
@@ -129,12 +139,19 @@ public sealed partial class Game
         while (open.Count > 0)
         {
             var cur = open.Dequeue();
-            if (cur == goal) break;
+            if (cur == goal)
+            {
+                break;
+            }
 
             foreach (var n in Map.Neighbors(cur))
             {
                 int cost = rules.MoveCost(Map[n].Terrain);
-                if (cost >= 9999) continue;
+                if (cost >= 9999)
+                {
+                    continue;
+                }
+
                 int ng = g[cur] + cost;
                 if (!g.TryGetValue(n, out var old) || ng < old)
                 {
@@ -147,11 +164,19 @@ public sealed partial class Game
         }
 
         var path = new List<Hex>();
-        if (!came.ContainsKey(goal) && start != goal) return path;
+        if (!came.ContainsKey(goal) && start != goal)
+        {
+            return path;
+        }
+
         var c2 = goal; path.Add(c2);
         while (c2 != start)
         {
-            if (!came.TryGetValue(c2, out var prev)) break;
+            if (!came.TryGetValue(c2, out var prev))
+            {
+                break;
+            }
+
             c2 = prev; path.Add(c2);
         }
         path.Reverse();
@@ -248,7 +273,10 @@ public sealed partial class Game
     {
         ActiveIndex = (ActiveIndex + 1) % Players.Count;
 
-        if (ActiveIndex == 0) Turn++;
+        if (ActiveIndex == 0)
+        {
+            Turn++;
+        }
 
         foreach (var u in Units)
         {

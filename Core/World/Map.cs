@@ -17,7 +17,9 @@ public sealed class Map
         {
             int qStart = QStart(r);
             for (int c = 0; c < Width; c++)
+            {
                 _tiles[new Hex(qStart + c, r)] = new Tile(Terrain.Ocean);
+            }
         }
     }
 

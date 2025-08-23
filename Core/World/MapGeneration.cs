@@ -49,7 +49,9 @@ internal static class MapGeneration
 
             var counts = new Dictionary<Terrain, int>();
             foreach (Terrain t in Enum.GetValues(typeof(Terrain)))
+            {
                 counts[t] = 0;
+            }
 
             // Assign tiles
             for (int r = 0; r < map.Height; r++)
@@ -77,18 +79,45 @@ internal static class MapGeneration
                     }
 
                     Terrain t;
-                    if (height < sea - coastBand - 0.02) t = Terrain.Ocean;
-                    else if (height < sea + coastBand) t = Terrain.Coast;
-                    else if (height > mountThreshold) t = Terrain.Mountains;
-                    else if (height > hillThreshold) t = Terrain.Hills;
+                    if (height < sea - coastBand - 0.02)
+                    {
+                        t = Terrain.Ocean;
+                    }
+                    else if (height < sea + coastBand)
+                    {
+                        t = Terrain.Coast;
+                    }
+                    else if (height > mountThreshold)
+                    {
+                        t = Terrain.Mountains;
+                    }
+                    else if (height > hillThreshold)
+                    {
+                        t = Terrain.Hills;
+                    }
                     else
                     {
                         // Biomes by moisture on lowlands
-                        if (moist < 0.18) t = Terrain.Desert;
-                        else if (moist < 0.35) t = Terrain.Plains;
-                        else if (moist < 0.55) t = Terrain.Grassland;
-                        else if (moist < 0.80) t = Terrain.Forest;
-                        else t = Terrain.Tundra;
+                        if (moist < 0.18)
+                        {
+                            t = Terrain.Desert;
+                        }
+                        else if (moist < 0.35)
+                        {
+                            t = Terrain.Plains;
+                        }
+                        else if (moist < 0.55)
+                        {
+                            t = Terrain.Grassland;
+                        }
+                        else if (moist < 0.80)
+                        {
+                            t = Terrain.Forest;
+                        }
+                        else
+                        {
+                            t = Terrain.Tundra;
+                        }
                     }
 
                     map[h] = new Tile(t);
@@ -169,9 +198,18 @@ internal static class MapGeneration
             {
                 foreach (var h in map.AllHexes())
                 {
-                    if (map[h].Terrain != Terrain.Ocean) continue;
+                    if (map[h].Terrain != Terrain.Ocean)
+                    {
+                        continue;
+                    }
+
                     foreach (var n in map.Neighbors(h))
-                        if (map[n].Terrain != Terrain.Ocean) return h;
+                    {
+                        if (map[n].Terrain != Terrain.Ocean)
+                        {
+                            return h;
+                        }
+                    }
                 }
                 return null;
             }
@@ -180,9 +218,18 @@ internal static class MapGeneration
             {
                 foreach (var h in map.AllHexes())
                 {
-                    if (map[h].Terrain == Terrain.Ocean) continue;
+                    if (map[h].Terrain == Terrain.Ocean)
+                    {
+                        continue;
+                    }
+
                     foreach (var n in map.Neighbors(h))
-                        if (map[n].Terrain == Terrain.Ocean) return h;
+                    {
+                        if (map[n].Terrain == Terrain.Ocean)
+                        {
+                            return h;
+                        }
+                    }
                 }
                 return null;
             }
@@ -226,17 +273,27 @@ internal static class MapGeneration
             Func<Hex, bool> predicate,
             Random rng)
         {
-            if (counts[target] > 0) return;
+            if (counts[target] > 0)
+            {
+                return;
+            }
 
             // Try to find a suitable candidate; fall back to any land
             var candidates = new List<Hex>();
             foreach (var h in map.AllHexes())
-                if (predicate(h)) candidates.Add(h);
+            {
+                if (predicate(h))
+                {
+                    candidates.Add(h);
+                }
+            }
 
             if (candidates.Count == 0)
             {
                 foreach (var h in map.AllHexes())
+                {
                     if (IsLand(map[h].Terrain)) { candidates.Add(h); break; }
+                }
             }
 
             if (candidates.Count > 0)

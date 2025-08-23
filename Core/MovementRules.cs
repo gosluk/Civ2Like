@@ -9,14 +9,22 @@ public sealed class MovementRules
     private readonly HashSet<Terrain> _impassable = new();
     private readonly Dictionary<Terrain, int> _cost = new();
 
-    public MovementRules Block(params Terrain[] types) { foreach (var t in types) _impassable.Add(t); return this; }
+    public MovementRules Block(params Terrain[] types) { foreach (var t in types) { _impassable.Add(t); } return this; }
     public MovementRules Cost(Terrain t, int c) { _cost[t] = c; return this; }
 
     public bool CanEnter(Terrain t) => !_impassable.Contains(t);
     public int MoveCost(Terrain t)
     {
-        if (!CanEnter(t)) return 9999;
-        if (_cost.TryGetValue(t, out var c)) return c;
+        if (!CanEnter(t))
+        {
+            return 9999;
+        }
+
+        if (_cost.TryGetValue(t, out var c))
+        {
+            return c;
+        }
+
         return t switch
         {
             Terrain.Mountains => 3,

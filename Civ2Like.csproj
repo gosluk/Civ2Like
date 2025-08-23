@@ -5,6 +5,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<OutputType>WinExe</OutputType>
 		<StartupObject>Civ2Like.Program</StartupObject>
+		<ApplicationIcon>Resources\hex_icon_245317.ico</ApplicationIcon>
 	</PropertyGroup>
 	
 	<ItemGroup>
@@ -33,6 +34,10 @@
 
 	<ItemGroup>
 	  <Compile Remove="Views\GameView.Initializing.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Include="Resources\hex_icon_245317.ico" />
 	</ItemGroup>
 	
 	<ItemGroup>

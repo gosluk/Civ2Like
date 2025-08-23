@@ -2,8 +2,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="using:Civ2Like.Views"
         x:Class="Civ2Like.MainWindow"
-        Title="Civ2Like - Hex Starter v10"
+        Title="Civ2Like - Hex"
         WindowState="Maximized"
+		Icon="Resources\hex_icon_245317.ico"
 		WindowStartupLocation="CenterScreen" Background="#FAFAFA">
 	<DockPanel LastChildFill="True">
 		<WrapPanel DockPanel.Dock="Top">

@@ -1,4 +1,5 @@
-﻿using Avalonia.Input;
+﻿using Avalonia.Controls.Documents;
+using Avalonia.Input;
 using Civ2Like.Config;
 using Civ2Like.Core.Units;
 using Civ2Like.Events.Items;
@@ -31,6 +32,8 @@ public sealed partial class GameView
         }
 
         _hoverNotifier.Post(world);
+
+        RefreshTile(world);
     }
     
     private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
@@ -189,6 +192,8 @@ public sealed partial class GameView
 
         SelectPlayer(_game.ActivePlayer);
         InvalidateVisual();
+
+        RefreshTile();
     }
 
     private void SelectUnit(Unit? unit)

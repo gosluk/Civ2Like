@@ -8,22 +8,34 @@ public static class Nations
 {
     private static readonly Random _rand = new();
 
+    private const double GROWTH_NOISE_MAX = 0.05;   // was 0.2 → ±0.5% in the final rate
+    private const double GROWTH_TERRAIN_SCALE = 4.0;
+    private const double GROWTH_RATE_SCALE = 0.10; // your original 0.1
+
+    private const double MIGRATION_BASE = 0.02; // was 0.05 → ~2% baseline
+    private const double MIGRATION_NOISE_MAX = 0.05; // was 0.1
+    private const uint MIGRATION_MIN_MOVE = 1;   // don’t bother if < 10 people
+
+    // weights for attractiveness
+    private const double ATTR_TERRAIN_W = 1.0;
+
+
     public static void ApplyGrowth(Nation nation, IReadOnlyDictionary<Hex, Tile> map)
     {
         foreach (var pos in map.Where(i => i.Value.Populations.ContainsKey(nation)))
         {
             PopulationUnit pu = pos.Value.Populations[nation];
 
-            double coefficient = TerrainFertility(pos.Value.Terrain) * 4 + _rand.NextDouble() * 0.2;
+            double coefficient = TerrainFertility(pos.Value.Terrain) + _rand.NextDouble() * GROWTH_NOISE_MAX;
             coefficient += nation.Bonuses.Sum(i => i.GrowthMultiplier);
 
-            ulong growth = (ulong)(pu.Value * coefficient * 0.1);
+            ulong growth = (ulong)(pu.Value * coefficient * GROWTH_RATE_SCALE);
 
             pu.Value += growth;
         }
     }
 
-    private static double TerrainFertility(Terrain terrain) => terrain switch
+    private static double TerrainFertility(Terrain terrain) => (terrain switch
     {
         Terrain.Ocean => 0.00,
         Terrain.Mountains => 0.00,
@@ -38,7 +50,7 @@ public static class Nations
         Terrain.Grassland => 0.022,
         Terrain.Coast => 0.0,
         _ => throw new NotImplementedException(),
-    };
+    }) * GROWTH_TERRAIN_SCALE;
 
     public static void ApplyMigration(Nation nation, Map map)
     {
@@ -47,35 +59,25 @@ public static class Nations
         foreach (var pos in originalState.Where(i => i.Value.Populations.ContainsKey(nation)))
         {
             PopulationUnit pu = pos.Value.Populations[nation];
-            double coefficient = 1.0 + TerrainMigrationability(pos.Value.Terrain) + _rand.NextDouble() * 0.1;
+            double coefficient = 1.0 + TerrainMigrationability(pos.Value.Terrain) + _rand.NextDouble() * MIGRATION_NOISE_MAX;
 
             coefficient += nation.Bonuses.Sum(i => i.MigrationMultiplier);
 
-            ulong allMigratingPeople = (ulong)(pu.Value * coefficient * 0.05);
+            ulong allMigratingPeople = (ulong)(pu.Value * coefficient * MIGRATION_BASE);
 
-            if (allMigratingPeople < 3)
+            var neighbours = map.Neighbors(pos.Key).
+                Select(i => map[i]).
+                Where(i => TerrainFertility(i.Terrain) > 0.0).
+                OrderBy(_ => _rand.Next());
+
+            foreach (var tile in neighbours)
             {
-                continue;
-            }
-
-            var neighbours = map.Neighbors(pos.Key).OrderBy(_ => _rand.Next());
-
-            foreach (var neighbour in neighbours)
-            {
-                if (allMigratingPeople < 10)
+                if (allMigratingPeople < MIGRATION_MIN_MOVE)
                 {
                     break;
                 }
 
-                var tile = map[neighbour];
-
-                double desirability = TerrainFertility(tile.Terrain);
-
-                if (desirability < 0.01)
-                {
-                    continue;
-                }
-
+                double desirability = TerrainFertility(tile.Terrain); 
                 uint migratingPeople = (uint)(allMigratingPeople * desirability * 10);
 
                 if (migratingPeople > 0)
@@ -102,7 +104,7 @@ public static class Nations
         }
     }
 
-    private static double TerrainMigrationability(Terrain terrain) => terrain switch
+    private static double TerrainMigrationability(Terrain terrain) => (terrain switch
     {
         Terrain.Ocean => 0.00,
         Terrain.Mountains => 0.00,
@@ -117,5 +119,5 @@ public static class Nations
         Terrain.Grassland => 0.022,
         Terrain.Coast => 0.0,
         _ => throw new NotImplementedException(),
-    };
+    }) * ATTR_TERRAIN_W;
 }

@@ -75,7 +75,7 @@ public sealed partial class GameView : Control, IDisposable
         WeakReferenceMessenger.Default.Register(this);
     }
 
-    private void RefreshTile(Hex? tile)
+    private void RefreshTile(Hex? tile = null)
     {
         WeakReferenceMessenger.Default.Send(new TileSelectionChangedEvent(_game, tile ?? _hoverWorldHex ?? null));
     }
